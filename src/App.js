@@ -8,7 +8,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import Home from "./Pages/Home/Home";
 
 function App() {
-  const [access_token, setAccess_token] = useState("");
+  const [access_token, setAccess_token] = useState(localStorage.getItem("access_token"));
   useEffect(() => {
     setAccess_token(localStorage.getItem("access_token"));
   }, [localStorage]);
