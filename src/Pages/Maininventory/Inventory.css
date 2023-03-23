@@ -1,0 +1,43 @@
+.inventory h3{
+    font-size: 40px;
+font-weight: bold;
+line-height: 32px;
+font-style: normal;
+text-align: left;
+color: #ffffff;
+}
+.uploadfiles p{
+    font-size: 30px;
+font-weight: 600;
+line-height: 16px;
+font-style: normal;
+text-align: left;
+color: #575962;
+padding: 20px 0px;
+display: inline;
+}
+.uploadfiles a{
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 16px;
+    font-style: normal;
+    color: #007fff;
+}
+
+@media (max-width: 768px){
+    .inventory h3{
+        font-size: 30px;
+    }
+    .uploadfiles p{
+        font-size: 17px;
+    font-weight: 400;
+    padding: 10px 0px;
+    }
+    .uploadfiles a{
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 16px;
+        font-style: normal;
+        color: #007fff !important;
+    }
+}
