@@ -1,4 +1,4 @@
-const apiCall = async (method, url, headers = {}, data = null) => {
+export const apiCall = async (method, url, headers = {}, data = null) => {
   try {
     const response = await fetch(url, {
       method: method,

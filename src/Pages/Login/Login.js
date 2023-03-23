@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import "./Login.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { Input } from "antd";
 import { Switch } from "antd";
+import { apiCall } from "../../Api/ApiCall";
+
 const Login = () => {
+  const navigate = useNavigate();
   const [hideshowemail, setHideshowEmail] = useState(true);
   const [hideshowphone, setHideshowPhone] = useState(false);
+  const firebase_relay_id = "ifV6F0TgYgXDqybVfJylNYHzwdD2";
 
   function handleClick() {
     setHideshowEmail(!hideshowemail);
@@ -18,6 +22,27 @@ const Login = () => {
   const onChange = (checked) => {
     console.log(`switch to ${checked}`);
   };
+  function handleSubmit() {
+    const apiUrl =
+      "https://console.collect2play.com/api/auth/user_by_firebase_relay_id";
+    const apiHeaders = {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    };
+    const apiData = {
+      firebase_relay: firebase_relay_id,
+    };
+
+    apiCall("POST", apiUrl, apiHeaders, apiData)
+      .then((responseData) => {
+        localStorage.setItem("access_token", responseData.access_token);
+        navigate("/");
+        console.log(responseData);
+      })
+      .catch((error) => console.error(error));
+  }
   return (
     <>
       <div className="login_Background">
@@ -36,7 +61,9 @@ const Login = () => {
                 <h1>Login</h1>
                 {hideshowemail && <input type="email" placeholder="Email" />}
 
-                {hideshowphone && <input type="text" placeholder="Cell Phone" /> }
+                {hideshowphone && (
+                  <input type="text" placeholder="Cell Phone" />
+                )}
 
                 {/* <input
                   type="password"
@@ -58,14 +85,19 @@ const Login = () => {
                     onClick={() => {
                       handleClick();
                       handleOtherClick();
-                    }} />
+                    }}
+                  />
                   <span className="float-end">Forgot Password?</span>
                 </div>
-                <Link to="/home">
-                  <button type="submit" className="signinbutton mt-4">
-                    Login
-                  </button>
-                </Link>
+                {/* <Link to="/home"> */}
+                <button
+                  onClick={handleSubmit}
+                  type="submit"
+                  className="signinbutton mt-4"
+                >
+                  Login
+                </button>
+                {/* </Link> */}
                 <button type="submit" className="guest continue">
                   Continue as Guest
                 </button>
