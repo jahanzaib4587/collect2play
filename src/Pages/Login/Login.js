@@ -23,27 +23,27 @@ const Login = () => {
     console.log(`switch to ${checked}`);
   };
   function handleSubmit() {
-    localStorage.setItem("access_token", "responseData.access_token");
-    navigate("/");
-    // const apiUrl =
-    //   "https://console.collect2play.com/api/auth/user_by_firebase_relay_id";
-    // const apiHeaders = {
-    //   "Content-Type": "application/json",
-    //   "Access-Control-Allow-Origin": "*",
-    //   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    //   "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    // };
-    // const apiData = {
-    //   firebase_relay: firebase_relay_id,
-    // };
+    // localStorage.setItem("access_token", "responseData.access_token");
+    // navigate("/");
+    const apiUrl =
+      "https://console.collect2play.com/api/auth/user_by_firebase_relay_id";
+    const apiHeaders = {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    };
+    const apiData = {
+      firebase_relay: firebase_relay_id,
+    };
 
-    // apiCall("POST", apiUrl, apiHeaders, apiData)
-    //   .then((responseData) => {
-    //     localStorage.setItem("access_token", responseData.access_token);
-    //     navigate("/");
-    //     console.log(responseData);
-    //   })
-    //   .catch((error) => console.error(error));
+    apiCall("POST", apiUrl, apiHeaders, apiData)
+      .then((responseData) => {
+        localStorage.setItem("access_token", responseData.access_token);
+        navigate("/");
+        console.log(responseData);
+      })
+      .catch((error) => console.error(error));
   }
   return (
     <>
