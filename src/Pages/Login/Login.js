@@ -37,7 +37,7 @@ const Login = () => {
       firebase_relay: firebase_relay_id,
     };
 
-    apiCall("POST", apiUrl, apiHeaders, apiData)
+    apiCall("POST", apiUrl, apiData)
       .then((responseData) => {
         localStorage.setItem("access_token", responseData.access_token);
         navigate("/");
