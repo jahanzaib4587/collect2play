@@ -27,12 +27,12 @@ const Login = () => {
     // navigate("/");
     const apiUrl =
       "https://console.collect2play.com/api/auth/user_by_firebase_relay_id";
-    const apiHeaders = {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    };
+    // const apiHeaders = {
+    //   "Content-Type": "application/json",
+    //   "Access-Control-Allow-Origin": "*",
+    //   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    //   "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    // };
     const apiData = {
       firebase_relay: firebase_relay_id,
     };
