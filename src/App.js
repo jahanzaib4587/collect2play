@@ -3,6 +3,7 @@ import "./App.css";
 import Login from "./Pages/Login/Login";
 import Register from "./Pages/Register/Register";
 import ForgotPassword from "./Pages/ForgotPassword/Index";
+import ResendVerificationEmail from './Pages/ResendVerficationEmail/Index'
 
 import Inventory from "./Pages/Maininventory/Inventory";
 import BobsCollection from "./Pages/Bobs_Collection/BobsCollection";
@@ -23,6 +24,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/sign_up" element={<Register />} />
           <Route path="/forgot_password" element={<ForgotPassword />} />
+          <Route path="/resend_verification_email" element={<ResendVerificationEmail />} />
+
 
           {/* {/ Protected routes /} */}
           {access_token ? (

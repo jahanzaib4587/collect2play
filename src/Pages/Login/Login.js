@@ -12,6 +12,7 @@ import {
   signInWithPopup,
   FacebookAuthProvider,
   TwitterAuthProvider,
+  sendEmailVerification
 } from "firebase/auth";
 import firebaseConfig from "../../Firebase/Firebase";
 import "./Login.css";
@@ -47,9 +48,13 @@ const Login = () => {
       setTimeout(() => {
         setShowNotification(false);
         setNotificationText("");
-      }, 3000);
+
+        if (notificationText === "Please verify your email before signing in.") {
+          window.location.href = "/resend_verification_email";
+        }
+      }, 2000);
     }
-    return () => {};
+    return () => { };
   }, [showNotification]);
 
   const handleGoogleSignIn = async () => {
@@ -64,9 +69,7 @@ const Login = () => {
       window.location.href = "/";
       console.log(token, user);
     } catch (error) {
-      const friendlyErrorMessage = getFriendlyErrorMessage(error);
-      setNotificationText(friendlyErrorMessage);
-      setShowNotification(true);
+      handleNotification(getFriendlyErrorMessage(error));
 
       console.log(error);
     }
@@ -82,9 +85,7 @@ const Login = () => {
       window.location.href = "/";
       console.log(token, user);
     } catch (error) {
-      const friendlyErrorMessage = getFriendlyErrorMessage(error);
-      setNotificationText(friendlyErrorMessage);
-      setShowNotification(true);
+      handleNotification(getFriendlyErrorMessage(error));
     }
   };
 
@@ -98,9 +99,7 @@ const Login = () => {
       window.location.href = "/";
       console.log(token, user);
     } catch (error) {
-      const friendlyErrorMessage = getFriendlyErrorMessage(error);
-      setNotificationText(friendlyErrorMessage);
-      setShowNotification(true);
+      handleNotification(getFriendlyErrorMessage(error));
 
       console.log(error);
     }
@@ -111,51 +110,61 @@ const Login = () => {
       .then(() => {
         setIsLoading(true);
 
+        // Check if the user's email is verified before signing in
+
+
         signInWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             const user = userCredential.user;
-            localStorage.setItem("access_token", user.accessToken);
-            console.log(user);
-            window.location.href = "/";
-            // navigate("/home");
-            // Do something with the signed-in user, e.g. navigate to home page
+            if (user.emailVerified) {
+              debugger
+              localStorage.setItem("access_token", user.accessToken);
+              console.log(user);
+              window.location.href = "/";
+            }
+            else {
+              // User's email has not been verified
+
+              handleNotification("Please verify your email before signing in.");
+
+            }
           })
           .catch((error) => {
-            const friendlyErrorMessage = getFriendlyErrorMessage(error);
-            setNotificationText(friendlyErrorMessage);
-
-            setShowNotification(true);
-            setNotificationType("error");
-            setIsLoading(false);
+            handleNotification(getFriendlyErrorMessage(error));
           });
+
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
+
   const handleSignUp = () => {
-    form
-      .validateFields()
-      .then(() => {
-        setIsLoading(true);
-        createUserWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
-            // Signed up successfully
-            const user = userCredential.user;
-            localStorage.setItem("access_token", user.accessToken);
-            console.log(user);
-            window.location.href = "/";
-          })
-          .catch((error) => {
-            const friendlyErrorMessage = getFriendlyErrorMessage(error);
-            setNotificationText(friendlyErrorMessage);
-            setNotificationType("error");
-            setShowNotification(true);
-            setIsLoading(false);
-            // Handle sign-up errors here
-            console.log(error);
-          });
-      })
-      .catch(() => {});
+    form.validateFields().then(() => {
+      setIsLoading(true);
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed up successfully
+          const user = userCredential.user;
+          sendEmailVerification(user)
+            .then(() => {
+              // Verification email sent successfully
+              handleNotification("Please check your email to verify your account.", "success");
+              setIsSignup(true)
+            })
+            .catch((error) => {
+              handleNotification(getFriendlyErrorMessage(error));
+
+              // Handle email verification errors here
+              console.log(error);
+            });
+        })
+        .catch((error) => {
+          handleNotification(getFriendlyErrorMessage(error));
+
+          // Handle sign-up errors here
+          console.log(error);
+        });
+    }).catch(() => { });
   };
 
   const apiData = {
@@ -207,6 +216,20 @@ const Login = () => {
         // setIsLoading(false);
         // setError(error);
       });
+  }
+  useEffect(() => {
+    form.resetFields();
+    setEmail("");
+    setPassword("");
+    setPhoneNumber(null);
+  }, [isSignup])
+
+
+  function handleNotification(message, type = "error") {
+    setNotificationText(message);
+    setNotificationType(type);
+    setShowNotification(true);
+    setIsLoading(false);
   }
 
   return (
@@ -313,7 +336,7 @@ const Login = () => {
                       handleOtherClick();
                       otpfield();
                     }}
-                  />
+                  />/
                   <Link to="/forgot_password">
                     <span className="float-end">Forgot Password?</span>
                   </Link>
@@ -335,6 +358,7 @@ const Login = () => {
                     }
                   ></span>
                 </button>
+
               </Form>
               {/* </Link> */}
               <button type="submit" className="guest continue">
