@@ -37,6 +37,7 @@ const Login = () => {
             setNotificationType("success");
             console.log("Password reset email sent successfully");
             setIsLoading(false);
+            form.resetFields();
             // show success message to user
           })
           .catch((error) => {
@@ -44,6 +45,7 @@ const Login = () => {
             setNotificationText(friendlyErrorMessage);
             setShowNotification(true);
             setIsLoading(false);
+            
           });
       })
       .catch(() => {});
