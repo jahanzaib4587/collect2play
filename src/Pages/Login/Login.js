@@ -76,7 +76,6 @@ const Login = () => {
       .then(() => {
         setIsLoading(true);
 
-        const auth = getAuth();
         signInWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             const user = userCredential.user;
