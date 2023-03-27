@@ -1,38 +1,4 @@
-.login_Background {
-  background-color: #191a1e;
-  /* height: 100vh; */
-  padding-top: 0px;
-}
-.Wrapper {
-  height: 100vh;
- 
-}
-.Wrapper h1 {
-  color: white;
-  font-family: "Poppins" !important;
-  font-style: normal !important;
-  font-weight: 500 !important;
-  font-size: 38px !important;
-  text-align: center;
-}
-.Wrapper img {
-  width: 120px;
-  padding-bottom: 25px;
-}
-.Wrapper input {
-  width: 100%;
-  background-color: #0e0f11;
-  padding: 20px;
-  color: white !important;
-  font-family: "Poppins" !important;
-  font-style: normal !important;
-  font-weight: 500 !important;
-  font-size: 20px !important;
-  border: none;
-  margin-top: 30px;
-  border-radius: 10px;
-}
-.Wrapper .signinbutton {
+.Wrapper1 .signinbutton {
   width: 100%;
   background-color: #007fff;
   padding: 20px;
@@ -45,23 +11,29 @@
   /* margin-top: 30px; */
   border-radius: 10px;
 }
-.Wrapper .guest {
-  width: 100%;
-  border: 2px solid #007fff !important;
-  padding: 20px;
-  background-color: transparent !important;
-  color: white !important;
+.login_Background1 {
+  background-color: #191a1e;
+  /* height: 100vh; */
+  padding-top: 0px;
+}
+.Wrapper1 {
+  height: 100vh;
+}
+.Wrapper1 h1 {
+  color: white;
   font-family: "Poppins" !important;
   font-style: normal !important;
   font-weight: 500 !important;
-  font-size: 20px;
-  border: none;
-  margin-top: 30px;
-  border-radius: 10px;
+  font-size: 38px !important;
+  text-align: center;
 }
-.Wrapper .twitteruser {
+.Wrapper1 img {
+  width: 120px;
+  padding-bottom: 25px;
+}
+.Wrapper1 input {
   width: 100%;
-  background-color: #202125 !important;
+  background-color: #0e0f11;
   padding: 20px;
   color: white !important;
   font-family: "Poppins" !important;
@@ -72,24 +44,15 @@
   margin-top: 30px;
   border-radius: 10px;
 }
-::placeholder {
-  color: white !important;
-}
-.Wrapper span {
+
+.Wrapper1 span {
   color: #45474f;
   font-family: "Poppins" !important;
   font-style: normal !important;
   font-weight: 500 !important;
-  font-size: 22px;
-}
-.twitteruser span {
-  color: white !important;
+  font-size: 18px;
 }
 
-.twitteruser i {
-  color: #007fff;
-  font-size: 32px;
-}
 @media (max-width: 768px) {
   .twitteruser i {
     color: #007fff;

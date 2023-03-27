@@ -55,9 +55,9 @@ const Login = () => {
 
   return (
     <>
-      <div className="login_Background">
+      <div className="login_Background1">
         <div className="container">
-          <div className="row Wrapper align-items-center justify-content-center">
+          <div className="row Wrapper1 align-items-center justify-content-center">
             <div className="col-md-6 px-3">
               <img
                 src={
