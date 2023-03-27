@@ -63,7 +63,7 @@ const Login = () => {
       const token = credential.accessToken;
       localStorage.setItem("access_token", token);
       const user = result.user;
-      navigate("/");
+      window.location.href = "/"
       console.log(token, user);
     } catch (error) {
       console.log(error);
@@ -81,7 +81,8 @@ const Login = () => {
             const user = userCredential.user;
             localStorage.setItem("access_token", user.accessToken);
             console.log(user);
-            navigate("/");
+            window.location.href = "/"
+            // navigate("/home");
             // Do something with the signed-in user, e.g. navigate to home page
           })
           .catch((error) => {
@@ -107,7 +108,7 @@ const Login = () => {
             const user = userCredential.user;
             localStorage.setItem("access_token", user.accessToken);
             console.log(user);
-            navigate("/");
+            window.location.href = "/"
           })
           .catch((error) => {
             setNotificationText(error.message);
