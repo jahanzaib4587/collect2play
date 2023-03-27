@@ -26,21 +26,27 @@ const Login = () => {
   const auth = getAuth(app);
 
   const handleForgotPassword = () => {
-    sendPasswordResetEmail(auth, email)
+    form
+      .validateFields()
       .then(() => {
-        setNotificationText("Password reset email sent successfully");
-        setShowNotification(true);
-        setNotificationType("success");
-        console.log("Password reset email sent successfully");
-        // show success message to user
+        setIsLoading(true);
+        sendPasswordResetEmail(auth, email)
+          .then(() => {
+            setNotificationText("Password reset email sent successfully");
+            setShowNotification(true);
+            setNotificationType("success");
+            console.log("Password reset email sent successfully");
+            setIsLoading(false);
+            // show success message to user
+          })
+          .catch((error) => {
+            const friendlyErrorMessage = getFriendlyErrorMessage(error);
+            setNotificationText(friendlyErrorMessage);
+            setShowNotification(true);
+            setIsLoading(false);
+          });
       })
-      .catch((error) => {
-        const friendlyErrorMessage = getFriendlyErrorMessage(error);
-        setNotificationText(friendlyErrorMessage);
-        setShowNotification(true);
-
-        console.log(error);
-      });
+      .catch(() => {});
   };
 
   useEffect(() => {

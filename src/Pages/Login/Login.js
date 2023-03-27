@@ -171,7 +171,7 @@ const Login = () => {
 
   const onChange = (checked) => {
     console.log(`switch to ${checked}`);
-    debugger;
+
     form.resetFields();
     setEmail("");
     setPassword("");
