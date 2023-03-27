@@ -13,6 +13,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
+  FacebookAuthProvider,
+  TwitterAuthProvider
 } from "firebase/auth";
 import firebaseConfig from "../../Firebase/Firebase";
 import "./Login.css";
@@ -27,7 +29,7 @@ const Login = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [notificationType, setNotificationType] = useState("success");
+  const [notificationType, setNotificationType] = useState("error");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const firebase_relay_id = "ifV6F0TgYgXDqybVfJylNYHzwdD2";
@@ -43,7 +45,6 @@ const Login = () => {
 
   const app = initializeApp(firebaseConfig);
 
-  const provider = new GoogleAuthProvider();
   const auth = getAuth(app);
 
   useEffect(() => {
@@ -57,6 +58,8 @@ const Login = () => {
   }, [showNotification]);
 
   const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+
     try {
       const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -68,11 +71,46 @@ const Login = () => {
     } catch (error) {
       const friendlyErrorMessage = getFriendlyErrorMessage(error);
       setNotificationText(friendlyErrorMessage);
+      setShowNotification(true);
 
       console.log(error);
     }
   };
 
+  const handleFacebookSignIn = async () => {
+    const provider = new FacebookAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const token = result.credential.accessToken;
+      const user = result.user;
+      localStorage.setItem("access_token", token);
+      window.location.href = "/"
+      console.log(token, user);
+    } catch (error) {
+      const friendlyErrorMessage = getFriendlyErrorMessage(error);
+      setNotificationText(friendlyErrorMessage);
+      setShowNotification(true);
+    }
+  };
+
+
+  const handleTwitterSignIn = async () => {
+    const provider = new TwitterAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const token = result.credential.accessToken;
+      const user = result.user;
+      localStorage.setItem("access_token", token);
+      window.location.href = "/"
+      console.log(token, user);
+    } catch (error) {
+      const friendlyErrorMessage = getFriendlyErrorMessage(error);
+      setNotificationText(friendlyErrorMessage);
+      setShowNotification(true);
+
+      console.log(error);
+    }
+  };
   const handleSignIn = (event) => {
     form
       .validateFields()
@@ -317,7 +355,7 @@ const Login = () => {
                   <hr className="text-white" />
                 </div>
               </div>
-              <button type="submit" className="twitteruser">
+              <button onClick={() => handleTwitterSignIn()} className="twitteruser">
                 <i class="fab float-start fa-twitter"></i>
                 <span>Continue as Twitter</span>
               </button>
@@ -334,7 +372,7 @@ const Login = () => {
                   </button>
                 </div>
                 <div className="col-6">
-                  <button type="submit" className="twitteruser">
+                  <button onClick={() => handleFacebookSignIn()} className="twitteruser">
                     <i class="fab float-start fa-facebook"></i>
                     <span>Facebook</span>
                   </button>
