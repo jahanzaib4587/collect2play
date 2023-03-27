@@ -53,12 +53,10 @@ const Login = () => {
         setNotificationText("");
       }, 3000);
     }
-    return () => {};
+    return () => { };
   }, [showNotification]);
 
   const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    const auth = getAuth();
     try {
       const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -97,7 +95,7 @@ const Login = () => {
             setIsLoading(false);
           });
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   const handleSignUp = () => {
@@ -120,7 +118,7 @@ const Login = () => {
             console.log(error);
           });
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   const apiData = {

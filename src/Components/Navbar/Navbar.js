@@ -7,8 +7,12 @@ import { Image } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useRef, useEffect } from 'react';
+import { getAuth, signOut } from "firebase/auth";
+import { initializeApp } from "firebase/app";
 import "./Navbar.css";
 import { useState } from "react";
+import firebaseConfig from "../../Firebase/Firebase";
+
 const BlackNavbar = () => {
   const [mobilemenu, setMobilemenu] = useState(false);
   const [search, setSearch] = useState(false);
@@ -17,11 +21,23 @@ const BlackNavbar = () => {
   const searchref = useRef(null);
   const mobile = useRef(null);
   const [authAction, setAuthAction] = useState('Log in')
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
   useEffect(() => {
     setAuthAction('Log out') && localStorage.getItem("access_token")
   }, [localStorage])
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("access_token")
+      console.log("Logged out successfully.");
+      // You may want to redirect the user to the login page after logging out
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -69,9 +85,7 @@ const BlackNavbar = () => {
     };
   }, [mobile]);
 
-  function handleAuth() {
-    localStorage.removeItem("access_token")
-  }
+
   return (
     <>
       <Navbar expand="lg" className='blackbg'>
@@ -102,7 +116,7 @@ const BlackNavbar = () => {
               <Nav.Link href="#action2" className="text-white" > About us </Nav.Link>
 
               <LinkContainer to="/login">
-                <Nav.Link className="text-white" onClick={handleAuth}> {authAction} </Nav.Link>
+                <Nav.Link className="text-white" onClick={handleLogout}> {authAction} </Nav.Link>
               </LinkContainer>
             </Nav>
             <Form className="d-flex" ref={searchref}>
