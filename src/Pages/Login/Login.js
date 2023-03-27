@@ -54,7 +54,7 @@ const Login = () => {
         setNotificationText("");
       }, 3000);
     }
-    return () => {};
+    return () => { };
   }, [showNotification]);
 
   const handleGoogleSignIn = async () => {
@@ -135,7 +135,7 @@ const Login = () => {
             setIsLoading(false);
           });
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   const handleSignUp = () => {
@@ -160,7 +160,7 @@ const Login = () => {
             console.log(error);
           });
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   const apiData = {
@@ -216,6 +216,8 @@ const Login = () => {
         return "User not found.";
       case "auth/too-many-requests":
         return "Too many attempts. Please try again later.";
+      case "auth/email-already-in-use":
+        return "Email already in use. Please try another email.";
       // Add more cases for other error codes as needed
       default:
         return "An error occurred. Please try again.";
