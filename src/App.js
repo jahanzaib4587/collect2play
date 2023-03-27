@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import Login from "./Pages/Login/Login";
 import Register from "./Pages/Register/Register";
+import ForgotPassword from "./Pages/ForgotPassword/Index";
+
 import Inventory from "./Pages/Maininventory/Inventory";
 import BobsCollection from "./Pages/Bobs_Collection/BobsCollection";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
@@ -20,6 +22,8 @@ function App() {
           {/* {/ Public routes /} */}
           <Route path="/login" element={<Login />} />
           <Route path="/sign_up" element={<Register />} />
+          <Route path="/forgot_password" element={<ForgotPassword />} />
+
           {/* {/ Protected routes /} */}
           {access_token ? (
             <>
