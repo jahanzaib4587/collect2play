@@ -12,7 +12,9 @@ import {
   getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithPopup,
 } from "firebase/auth";
+import firebaseConfig from "../../Firebase/Firebase";
 import "./Login.css";
 import { motion } from "framer-motion";
 
@@ -38,16 +40,7 @@ const Login = () => {
   function otpfield() {
     setOTP(!OTP);
   }
-  const firebaseConfig = {
-    apiKey: "AIzaSyBtZcEG4vcJHBa3UlDEtPpTJ3D5TNpkzAs",
-    authDomain: "collect2play-5c3d4.firebaseapp.com",
-    databaseURL: "https://collect2play-5c3d4-default-rtdb.firebaseio.com",
-    projectId: "collect2play-5c3d4",
-    storageBucket: "collect2play-5c3d4.appspot.com",
-    messagingSenderId: "432235957600",
-    appId: "1:432235957600:web:f3c383932428a00cec2205",
-    measurementId: "G-WY68V7QXMR",
-  };
+
   const app = initializeApp(firebaseConfig);
 
   const provider = new GoogleAuthProvider();
@@ -64,30 +57,19 @@ const Login = () => {
   }, [showNotification]);
 
   const handleGoogleSignIn = async () => {
-    debugger;
-    signInWithRedirect(auth, provider)
-      .then(() => {
-        return getRedirectResult(auth);
-      })
-      .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-
-        localStorage.setItem("access_token", token);
-
-        // The signed-in user info.
-        const user = result.user;
-        console.log(user);
-        navigate("/");
-      })
-      .catch((error) => {
-        setNotificationText(error.message);
-        setShowNotification(true);
-        setNotificationType("error");
-        // Handle errors here.
-        console.log(error);
-      });
+    const provider = new GoogleAuthProvider();
+    const auth = getAuth();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential.accessToken;
+      localStorage.setItem("access_token", token);
+      const user = result.user;
+      navigate("/");
+      console.log(token, user);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleSignIn = (event) => {
@@ -238,7 +220,7 @@ const Login = () => {
                       {
                         whitespace: true,
                         required: true,
-                        message: "Please enter the value",
+                        message: "Please enter the Email",
                       },
                     ]}
                   >
@@ -334,9 +316,14 @@ const Login = () => {
               </button>
               <div className="row">
                 <div className="col-6">
-                  <button type="submit" className="twitteruser">
+                  <button
+                    onClick={() => {
+                      handleGoogleSignIn();
+                    }}
+                    className="twitteruser"
+                  >
                     <i class="fab float-start fa-google"></i>
-                    <span onClick={handleGoogleSignIn}>Google</span>
+                    <span>Google</span>
                   </button>
                 </div>
                 <div className="col-6">
