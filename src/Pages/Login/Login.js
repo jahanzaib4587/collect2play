@@ -23,8 +23,13 @@ const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const firebase_relay_id = "ifV6F0TgYgXDqybVfJylNYHzwdD2";
+  const [isSignup, setIsSignup] = useState(false)
+  const [OTP, setOTP] = useState(false);
 
 
+  function otpfield() {
+    setOTP(!OTP)
+  }
   const firebaseConfig = {
     apiKey: "AIzaSyBtZcEG4vcJHBa3UlDEtPpTJ3D5TNpkzAs",
     authDomain: "collect2play-5c3d4.firebaseapp.com",
@@ -44,7 +49,8 @@ const Login = () => {
     if (showNotification) {
       setTimeout(() => {
         setShowNotification(false);
-      }, 2000);
+        setNotificationText('')
+      }, 3000);
     }
     return () => {
     };
@@ -76,6 +82,33 @@ const Login = () => {
       });
   };
 
+  const handleSignIn = (event) => {
+    debugger
+    event.preventDefault();
+    setIsLoading(true);
+
+    const auth = getAuth();
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        localStorage.setItem("access_token", user.accessToken);
+        console.log(user);
+        navigate("/");
+        // Do something with the signed-in user, e.g. navigate to home page
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        setError(errorMessage);
+        setNotificationText(error.message)
+        setShowNotification(true)
+        setNotificationType('error')
+        setIsLoading(false);
+      });
+  };
+
+
+
   const handleSignUp = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
@@ -86,7 +119,6 @@ const Login = () => {
       .catch((error) => {
         setNotificationText(error.message)
         setNotificationType('error')
-
         setShowNotification(true)
         // Handle sign-up errors here
         console.log(error);
@@ -109,9 +141,6 @@ const Login = () => {
     console.log(`switch to ${checked}`);
   };
   function handleSubmit() {
-    // localStorage.setItem("access_token", "responseData.access_token");
-    // navigate("/");
-
     fetch('https://console.collect2play.com/api/auth/user_by_firebase_relay_id', {
       method: 'POST',
       headers: {
@@ -138,30 +167,6 @@ const Login = () => {
         // setIsLoading(false);
         // setError(error);
       });
-
-
-
-
-    // const apiUrl =
-    //   "https://console.collect2play.com/api/auth/user_by_firebase_relay_id";
-    // const apiHeaders = {
-    //   "Content-Type": "application/json",
-    //   'Access-Control-Allow-Origin': `${window.location.origin}/`,
-    //   'Access-Control-Allow-Headers':
-    //     'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers,X-Access-Token,XKey,Authorization',
-
-    // };
-    // const apiData = {
-    //   firebase_relay: firebase_relay_id,
-    // };
-
-    // apiCall("POST", apiUrl, apiHeaders, apiData)
-    //   .then((responseData) => {
-    //     localStorage.setItem("access_token", responseData.access_token);
-    //     // navigate("/");
-    //     console.log(responseData);
-    //   })
-    //   .catch((error) => console.error(error));
   }
 
 
@@ -169,7 +174,7 @@ const Login = () => {
     <>
       <div className="login_Background">
         <div className="container">
-          {/* <form> */}
+
           <div className="row Wrapper align-items-center justify-content-center">
             <div className="col-md-6 px-3">
               <img
@@ -180,61 +185,56 @@ const Login = () => {
                 alt=""
                 className="d-block m-auto"
               />
-              <h1>Login</h1>
-              {showNotification && notificationText && (
-                <Alert message={notificationText} type={notificationType} showIcon />
-              )}
-              {/* <motion.div
-                initial={{ opacity: 0, marginBottom: 0 }}
-                animate={{
-                  opacity: showNotification ? 1 : 0,
-                  marginBottom: showNotification ? 20 : 0,
-                }}
-              >
+              <h1>{!isSignup ? "Register" : "Log in"}</h1>
+              <form>
                 {showNotification && notificationText && (
                   <Alert message={notificationText} type={notificationType} showIcon />
                 )}
-              </motion.div> */}
-
-              {hideshowemail && <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />}
-
-              {hideshowphone && (
-                <input type="text" placeholder="Cell Phone" />
-              )}
-
-              {/* <input
-                  type="password"
-                  placeholder="Password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                /> */}
-              <Input.Password
-                placeholder="Password"
-                onChange={(e) => setPassword(e.target.value)}
-                iconRender={(visible) =>
-                  visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                }
-              />
-
-              <div className="mt-3">
-                <Switch
-                  onChange={onChange}
-                  onClick={() => {
-                    handleClick();
-                    handleOtherClick();
+                <motion.div
+                  initial={{ opacity: 0, marginBottom: 0 }}
+                  animate={{
+                    opacity: showNotification ? 1 : 0,
+                    marginBottom: showNotification ? 20 : 0,
                   }}
+                >
+                  {showNotification && notificationText && (
+                    <Alert message={notificationText} type={notificationType} showIcon />
+                  )}
+                </motion.div>
+
+                {hideshowemail && <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />}
+
+                {hideshowphone && (
+                  <input type="text" placeholder="Cell Phone" />
+                )}
+
+                <Input.Password
+                  placeholder="Password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  iconRender={(visible) =>
+                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                  }
                 />
-                <span className="float-end">Forgot Password?</span>
-              </div>
-              {/* <Link to="/home"> */}
-              <button
-                onClick={handleSubmit}
-                type="submit"
-                className="signinbutton mt-4"
-              >
-                Login
-              </button>
+                {OTP && <input
+                  type="text"
+                  placeholder="OTP"
+
+                />}
+                <div className="mt-3">
+                  <Switch onChange={onChange} className="mt-4"
+                    onClick={() => { handleClick(); handleOtherClick(); otpfield(); }}
+                  />
+                  <span className="float-end">Forgot Password?</span>
+                </div>
+                {/* <Link to="/home"> */}
+                <button
+                  onClick={() => { !isSignup ? handleSignUp() : handleSignIn() }}
+                  type="submit"
+                  className="signinbutton mt-4"
+                >
+                  {!isSignup ? "Register" : "Log in"}
+                </button>
+              </form>
               {/* </Link> */}
               <button type="submit" className="guest continue">
                 Continue as Guest
@@ -270,14 +270,14 @@ const Login = () => {
                 </div>
               </div>
               <div className="col-12 py-3 text-center">
-                <span>Don't have an account! </span>
-                <Link to="/sign_up">
-                  <span className="text-white ps-2" onClick={handleSignUp}>Sign Up</span>
-                </Link>
+                <span>{isSignup ? "Don't have an account!" : "Already have an account!"} </span>
+                {/* <Link to="/sign_up"> */}
+                <span style={{ cursor: ' pointer' }} className="text-white ps-2" onClick={() => setIsSignup(!isSignup)}>{isSignup ? "Sign Up" : "Log in"}</span>
+                {/* </Link> */}
               </div>
             </div>
           </div>
-          {/* </form> */}
+
         </div>
       </div>
     </>
