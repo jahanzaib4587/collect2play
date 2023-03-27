@@ -3,13 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { Input, Alert, Form } from "antd";
 import { Switch } from "antd";
-import { apiCall } from "../../Api/ApiCall";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
@@ -19,15 +16,13 @@ import {
 import firebaseConfig from "../../Firebase/Firebase";
 import "./Login.css";
 import { motion } from "framer-motion";
+import { getFriendlyErrorMessage } from "../../Components/Utilities/Utilities";
 
 const Login = () => {
-  const navigate = useNavigate();
   const [hideshowemail, setHideshowEmail] = useState(true);
   const [hideshowphone, setHideshowPhone] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationText, setNotificationText] = useState("abc");
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [notificationType, setNotificationType] = useState("error");
   const [email, setEmail] = useState("");
@@ -54,7 +49,7 @@ const Login = () => {
         setNotificationText("");
       }, 3000);
     }
-    return () => { };
+    return () => {};
   }, [showNotification]);
 
   const handleGoogleSignIn = async () => {
@@ -134,7 +129,7 @@ const Login = () => {
             setIsLoading(false);
           });
       })
-      .catch(() => { });
+      .catch(() => {});
   };
 
   const handleSignUp = () => {
@@ -160,7 +155,7 @@ const Login = () => {
             console.log(error);
           });
       })
-      .catch(() => { });
+      .catch(() => {});
   };
 
   const apiData = {
@@ -208,30 +203,6 @@ const Login = () => {
         // setError(error);
       });
   }
-  function getFriendlyErrorMessage(error) {
-    switch (error.code) {
-      case "auth/wrong-password":
-        return "Password is incorrect.";
-      case "auth/user-not-found":
-        return "User not found.";
-      case "auth/too-many-requests":
-        return "Too many attempts. Please try again later.";
-      case "auth/email-already-in-use":
-        return "Email already in use. Please try another email.";
-      case "auth/user-not-found":
-        return "User not found. Please check your email address and try again.";
-      case "auth/invalid-email":
-        return "Invalid email address. Please check your email address and try again.";
-      case "auth/expired-action-code":
-        return "The password reset link has expired. Please request a new link.";
-      case "auth/invalid-action-code":
-        return "The password reset link is invalid. Please request a new link.";
-      // Add more cases for other error codes as needed
-      default:
-        return "An error occurred. Please try again.";
-    }
-  }
-
 
   return (
     <>
