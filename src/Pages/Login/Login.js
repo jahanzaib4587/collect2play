@@ -14,7 +14,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   FacebookAuthProvider,
-  TwitterAuthProvider
+  TwitterAuthProvider,
 } from "firebase/auth";
 import firebaseConfig from "../../Firebase/Firebase";
 import "./Login.css";
@@ -84,7 +84,7 @@ const Login = () => {
       const token = result.credential.accessToken;
       const user = result.user;
       localStorage.setItem("access_token", token);
-      window.location.href = "/"
+      window.location.href = "/";
       console.log(token, user);
     } catch (error) {
       const friendlyErrorMessage = getFriendlyErrorMessage(error);
@@ -93,7 +93,6 @@ const Login = () => {
     }
   };
 
-
   const handleTwitterSignIn = async () => {
     const provider = new TwitterAuthProvider();
     try {
@@ -101,7 +100,7 @@ const Login = () => {
       const token = result.credential.accessToken;
       const user = result.user;
       localStorage.setItem("access_token", token);
-      window.location.href = "/"
+      window.location.href = "/";
       console.log(token, user);
     } catch (error) {
       const friendlyErrorMessage = getFriendlyErrorMessage(error);
@@ -156,6 +155,7 @@ const Login = () => {
             setNotificationText(friendlyErrorMessage);
             setNotificationType("error");
             setShowNotification(true);
+            setIsLoading(false);
             // Handle sign-up errors here
             console.log(error);
           });
@@ -341,7 +341,8 @@ const Login = () => {
                   {!isSignup ? "Register" : "Log in"}
                   <span
                     className={
-                      isLoading && `spinner-border spinner-border-sm mx-2`
+                      isLoading &&
+                      `spinner-border spinner-border-sm mx-2 text-light`
                     }
                   ></span>
                 </button>
@@ -362,7 +363,10 @@ const Login = () => {
                   <hr className="text-white" />
                 </div>
               </div>
-              <button onClick={() => handleTwitterSignIn()} className="twitteruser">
+              <button
+                onClick={() => handleTwitterSignIn()}
+                className="twitteruser"
+              >
                 <i class="fab float-start fa-twitter"></i>
                 <span>Continue as Twitter</span>
               </button>
@@ -379,7 +383,10 @@ const Login = () => {
                   </button>
                 </div>
                 <div className="col-6">
-                  <button onClick={() => handleFacebookSignIn()} className="twitteruser">
+                  <button
+                    onClick={() => handleFacebookSignIn()}
+                    className="twitteruser"
+                  >
                     <i class="fab float-start fa-facebook"></i>
                     <span>Facebook</span>
                   </button>
