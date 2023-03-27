@@ -54,7 +54,7 @@ const Login = () => {
         setNotificationText("");
       }, 3000);
     }
-    return () => { };
+    return () => {};
   }, [showNotification]);
 
   const handleGoogleSignIn = async () => {
@@ -66,7 +66,7 @@ const Login = () => {
       const token = credential.accessToken;
       localStorage.setItem("access_token", token);
       const user = result.user;
-      window.location.href = "/"
+      window.location.href = "/";
       console.log(token, user);
     } catch (error) {
       const friendlyErrorMessage = getFriendlyErrorMessage(error);
@@ -122,7 +122,7 @@ const Login = () => {
             const user = userCredential.user;
             localStorage.setItem("access_token", user.accessToken);
             console.log(user);
-            window.location.href = "/"
+            window.location.href = "/";
             // navigate("/home");
             // Do something with the signed-in user, e.g. navigate to home page
           })
@@ -135,20 +135,21 @@ const Login = () => {
             setIsLoading(false);
           });
       })
-      .catch(() => { });
+      .catch(() => {});
   };
 
   const handleSignUp = () => {
     form
       .validateFields()
       .then(() => {
+        setIsLoading(true);
         createUserWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             // Signed up successfully
             const user = userCredential.user;
             localStorage.setItem("access_token", user.accessToken);
             console.log(user);
-            window.location.href = "/"
+            window.location.href = "/";
           })
           .catch((error) => {
             const friendlyErrorMessage = getFriendlyErrorMessage(error);
@@ -159,7 +160,7 @@ const Login = () => {
             console.log(error);
           });
       })
-      .catch(() => { });
+      .catch(() => {});
   };
 
   const apiData = {
@@ -334,9 +335,15 @@ const Login = () => {
                     !isSignup ? handleSignUp() : handleSignIn();
                   }}
                   // type="submit"
+                  disabled={isLoading}
                   className="signinbutton mt-4"
                 >
                   {!isSignup ? "Register" : "Log in"}
+                  <span
+                    className={
+                      isLoading && `spinner-border spinner-border-sm mx-2`
+                    }
+                  ></span>
                 </button>
               </Form>
               {/* </Link> */}
