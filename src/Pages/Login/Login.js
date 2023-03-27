@@ -66,6 +66,9 @@ const Login = () => {
       window.location.href = "/"
       console.log(token, user);
     } catch (error) {
+      const friendlyErrorMessage = getFriendlyErrorMessage(error);
+      setNotificationText(friendlyErrorMessage);
+
       console.log(error);
     }
   };
@@ -86,10 +89,9 @@ const Login = () => {
             // Do something with the signed-in user, e.g. navigate to home page
           })
           .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            setError(errorMessage);
-            setNotificationText(error.message);
+            const friendlyErrorMessage = getFriendlyErrorMessage(error);
+            setNotificationText(friendlyErrorMessage);
+
             setShowNotification(true);
             setNotificationType("error");
             setIsLoading(false);
@@ -111,7 +113,8 @@ const Login = () => {
             window.location.href = "/"
           })
           .catch((error) => {
-            setNotificationText(error.message);
+            const friendlyErrorMessage = getFriendlyErrorMessage(error);
+            setNotificationText(friendlyErrorMessage);
             setNotificationType("error");
             setShowNotification(true);
             // Handle sign-up errors here
@@ -166,6 +169,19 @@ const Login = () => {
         // setError(error);
       });
   }
+  function getFriendlyErrorMessage(error) {
+    switch (error.code) {
+      case "auth/wrong-password":
+        return "Password is incorrect.";
+      case "auth/user-not-found":
+        return "User not found.";
+      case "auth/too-many-requests":
+        return "Too many attempts. Please try again later.";
+      // Add more cases for other error codes as needed
+      default:
+        return "An error occurred. Please try again.";
+    }
+  }
 
   return (
     <>
@@ -183,13 +199,6 @@ const Login = () => {
               />
               <h1>{!isSignup ? "Register" : "Log in"}</h1>
               <Form form={form}>
-                {showNotification && notificationText && (
-                  <Alert
-                    message={notificationText}
-                    type={notificationType}
-                    showIcon
-                  />
-                )}
                 <motion.div
                   initial={{ opacity: 0, marginBottom: 0 }}
                   animate={{
