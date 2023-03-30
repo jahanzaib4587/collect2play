@@ -1,3 +1,6 @@
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+
 const firebaseConfig = {
   apiKey: "AIzaSyBtZcEG4vcJHBa3UlDEtPpTJ3D5TNpkzAs",
   authDomain: "collect2play-5c3d4.firebaseapp.com",
@@ -9,4 +12,6 @@ const firebaseConfig = {
   measurementId: "G-WY68V7QXMR",
 };
 
-export default firebaseConfig;
+const app = initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);

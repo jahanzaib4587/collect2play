@@ -8,10 +8,10 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useRef, useEffect } from 'react';
 import { getAuth, signOut } from "firebase/auth";
-import { initializeApp } from "firebase/app";
+import { auth } from "../../Firebase/Firebase";
 import "./Navbar.css";
 import { useState } from "react";
-import firebaseConfig from "../../Firebase/Firebase";
+
 
 const BlackNavbar = () => {
   const [mobilemenu, setMobilemenu] = useState(false);
@@ -21,8 +21,7 @@ const BlackNavbar = () => {
   const searchref = useRef(null);
   const mobile = useRef(null);
   const [authAction, setAuthAction] = useState('Log in')
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+  
 
   useEffect(() => {
     setAuthAction('Log out') && localStorage.getItem("access_token")

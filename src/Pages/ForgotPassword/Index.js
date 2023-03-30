@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Input, Alert, Form } from "antd";
-import { initializeApp } from "firebase/app";
+import { auth } from "../../Firebase/Firebase";
 import {
   getAuth,
   sendPasswordResetEmail,
   GoogleAuthProvider,
 } from "firebase/auth";
-import firebaseConfig from "../../Firebase/Firebase";
+
 import "./index.css";
 import { motion } from "framer-motion";
 import { getFriendlyErrorMessage } from "../../Components/Utilities/Utilities";
@@ -20,10 +20,6 @@ const Login = () => {
   const [email, setEmail] = useState("");
 
   const [form] = Form.useForm();
-
-  const app = initializeApp(firebaseConfig);
-
-  const auth = getAuth(app);
 
   const handleForgotPassword = () => {
     form
@@ -45,7 +41,6 @@ const Login = () => {
             setNotificationText(friendlyErrorMessage);
             setShowNotification(true);
             setIsLoading(false);
-            
           });
       })
       .catch(() => {});

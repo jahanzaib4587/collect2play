@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // import PhoneInput from 'react-phone-number-input'
-import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { Input, Alert, Form } from "antd";
 import { Switch } from "antd";
-import { initializeApp } from "firebase/app";
+
 import {
-  getAuth,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
   FacebookAuthProvider,
   TwitterAuthProvider,
-  sendEmailVerification
+  sendEmailVerification,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  PhoneAuthProvider,
 } from "firebase/auth";
-import firebaseConfig from "../../Firebase/Firebase";
+import { auth } from "../../Firebase/Firebase";
 import "./Login.css";
 import { motion } from "framer-motion";
 import { getFriendlyErrorMessage } from "../../Components/Utilities/Utilities";
@@ -35,7 +37,9 @@ const Login = () => {
   const [isSignup, setIsSignup] = useState(true);
   const [OTP, setOTP] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState();
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState("");
+  const [verificationId, setVerificationId] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
 
   const [form] = Form.useForm();
 
@@ -43,9 +47,86 @@ const Login = () => {
     setOTP(!OTP);
   }
 
-  const app = initializeApp(firebaseConfig);
+  function onCaptchVerify() {
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      "recaptcha-container",
+      {
+        size: "invisible",
+        callback: (response) => {
+          sendVerificationCode();
+        },
+        "expired-callback": () => {},
+      },
+      auth
+    );
+  }
 
-  const auth = getAuth(app);
+  function sendVerificationCode() {
+    onCaptchVerify();
+
+    const appVerifier = window.recaptchaVerifier;
+    setIsLoading(true);
+    let phoneTemp = "+" + phoneNumber;
+
+    signInWithPhoneNumber(auth, phoneTemp, appVerifier)
+      .then((confirmationResult) => {
+        window.confirmationResult = confirmationResult;
+        setVerificationId(confirmationResult);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  const handleSignUpVerificationCode = (
+    verificationId,
+    verificationCode,
+    password
+  ) => {
+    const credential = PhoneAuthProvider.credential(
+      verificationId,
+      verificationCode
+    );
+
+    createUserWithEmailAndPassword(auth, `${phoneNumber}@example.com`, password) // Note the empty email
+      .then((userCredential) => {
+        // Link the phone credential with the email/password account
+        const currentUser = userCredential.user;
+        currentUser
+          .linkWithCredential(credential)
+          .then(() => {
+            // User successfully linked
+            console.log("User successfully linked");
+
+            // Log the user in
+            auth
+              .signInWithCredential(credential)
+              .then((user) => {
+                // User successfully logged in
+                console.log("User successfully logged in");
+                localStorage.setItem("access_token", user.accessToken);
+
+                window.location.href = "/";
+              })
+              .catch((error) => {
+                // Handle errors
+                console.log("Error logging in:", error);
+                handleNotification(getFriendlyErrorMessage(error));
+              });
+          })
+          .catch((error) => {
+            // Handle errors
+            console.log("Error linking account:", error);
+            handleNotification(getFriendlyErrorMessage(error));
+          });
+      })
+      .catch((error) => {
+        console.error("Error signing up:", error);
+        handleNotification(getFriendlyErrorMessage(error));
+      });
+  };
+  // Function to sign up user with phone number and password
 
   useEffect(() => {
     if (showNotification) {
@@ -53,12 +134,14 @@ const Login = () => {
         setShowNotification(false);
         setNotificationText("");
 
-        if (notificationText === "Please verify your email before signing in.") {
+        if (
+          notificationText === "Please verify your email before signing in."
+        ) {
           window.location.href = "/resend_verification_email";
         }
       }, 2000);
     }
-    return () => { };
+    return () => {};
   }, [showNotification]);
 
   const handleGoogleSignIn = async () => {
@@ -116,59 +199,59 @@ const Login = () => {
 
         // Check if the user's email is verified before signing in
 
-
         signInWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             const user = userCredential.user;
             if (user.emailVerified) {
-              debugger
               localStorage.setItem("access_token", user.accessToken);
               console.log(user);
               window.location.href = "/";
-            }
-            else {
+            } else {
               // User's email has not been verified
 
               handleNotification("Please verify your email before signing in.");
-
             }
           })
           .catch((error) => {
             handleNotification(getFriendlyErrorMessage(error));
           });
-
       })
-      .catch(() => { });
+      .catch(() => {});
   };
 
-
   const handleSignUp = () => {
-    form.validateFields().then(() => {
-      setIsLoading(true);
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          // Signed up successfully
-          const user = userCredential.user;
-          sendEmailVerification(user)
-            .then(() => {
-              // Verification email sent successfully
-              handleNotification("Please check your email to verify your account.", "success");
-              setIsSignup(true)
-            })
-            .catch((error) => {
-              handleNotification(getFriendlyErrorMessage(error));
+    form
+      .validateFields()
+      .then(() => {
+        setIsLoading(true);
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            // Signed up successfully
+            const user = userCredential.user;
+            sendEmailVerification(user)
+              .then(() => {
+                // Verification email sent successfully
+                handleNotification(
+                  "Please check your email to verify your account.",
+                  "success"
+                );
+                setIsSignup(true);
+              })
+              .catch((error) => {
+                handleNotification(getFriendlyErrorMessage(error));
 
-              // Handle email verification errors here
-              console.log(error);
-            });
-        })
-        .catch((error) => {
-          handleNotification(getFriendlyErrorMessage(error));
+                // Handle email verification errors here
+                console.log(error);
+              });
+          })
+          .catch((error) => {
+            handleNotification(getFriendlyErrorMessage(error));
 
-          // Handle sign-up errors here
-          console.log(error);
-        });
-    }).catch(() => { });
+            // Handle sign-up errors here
+            console.log(error);
+          });
+      })
+      .catch(() => {});
   };
 
   const apiData = {
@@ -190,6 +273,42 @@ const Login = () => {
     setPassword("");
     setPhoneNumber(null);
   };
+
+  const signInWithPhone = async (phoneNumber, password, verificationCode) => {
+    debugger
+    try {
+      // Verify the code first
+      const credential = await signInWithPhoneNumber(
+        verificationId,
+        verificationCode
+      );
+      const result = await signInWithEmailAndPassword(
+        auth,
+        `${phoneNumber}@example.com`,
+        password
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
+  // const signInWithPhone = (verificationId, verificationCode) => {
+  //   const credential = PhoneAuthProvider.credential(
+  //     verificationId,
+  //     verificationCode
+  //   );
+
+  //   signInWithCredential(auth, credential)
+  //     .then((userCredential) => {
+  //       User successfully logged in
+  //       console.log("User successfully logged in");
+  //     })
+  //     .catch((error) => {
+  //       Handle errors
+  //       console.log("Error logging in:", error);
+  //     });
+  // };
   function handleSubmit() {
     fetch(
       "https://console.collect2play.com/api/auth/user_by_firebase_relay_id",
@@ -226,8 +345,7 @@ const Login = () => {
     setEmail("");
     setPassword("");
     setPhoneNumber(null);
-  }, [isSignup])
-
+  }, [isSignup]);
 
   function handleNotification(message, type = "error") {
     setNotificationText(message);
@@ -238,6 +356,7 @@ const Login = () => {
 
   return (
     <>
+      <div id="recaptcha-container"></div>
       <div className="login_Background">
         <div className="container">
           <div className="row Wrapper align-items-center justify-content-center">
@@ -290,48 +409,56 @@ const Login = () => {
                     />
                   </Form.Item>
                 )}
-
-                {hideshowphone && (
-                 <PhoneInput
-                 inputProps={{
-                   name: 'phone',
-                   required: true,
-                   autoFocus: true,
-                 }}
-                 value={phone}
-                countryCodeEditable ={false}
-                 inputStyle={{
-                  paddingTop: 35,
-                  paddingRight: 14,
-                  paddingBottom: 35,
-                 paddingLeft:50
-                
-                }}
-               
-                 country={'us'}
-                 className= "w-100 phonenumber_field countries"
-                 inputClass = "contact_field"
-               />
-                  // <Form.Item
-                  //   name="phone-number"
-                  //   rules={[
-                  //     {
-                  //       whitespace: true,
-                  //       required: true,
-                  //       message: "Please enter the phone number",
-                  //     },
-                  //   ]}
-                  // >
-                  //   <Input
-                  //     type="number"
-                  //     placeholder="Cell Phone"
-                  //     onChange={(e) => {
-                  //       setPhoneNumber(e.target.value);
-                  //     }}
-                  //   />
-                  // </Form.Item>
-                )
-                }
+                <Form.Item
+                  name="phone"
+                  rules={[
+                    {
+                      whitespace: true,
+                      required: true,
+                      message: "Please enter the phone number",
+                    },
+                  ]}
+                >
+                  {hideshowphone && (
+                    <PhoneInput
+                      inputProps={{
+                        name: "phone",
+                        required: true,
+                        autoFocus: true,
+                      }}
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e)}
+                      countryCodeEditable={false}
+                      inputStyle={{
+                        paddingTop: 35,
+                        paddingRight: 14,
+                        paddingBottom: 35,
+                        paddingLeft: 50,
+                      }}
+                      country={"us"}
+                      className="w-100 phonenumber_field countries"
+                      inputClass="contact_field"
+                    />
+                    // <Form.Item
+                    //   name="phone-number"
+                    //   rules={[
+                    //     {
+                    //       whitespace: true,
+                    //       required: true,
+                    //       message: "Please enter the phone number",
+                    //     },
+                    //   ]}
+                    // >
+                    //   <Input
+                    //     type="number"
+                    //     placeholder="Cell Phone"
+                    //     onChange={(e) => {
+                    //       setPhoneNumber(e.target.value);
+                    //     }}
+                    //   />
+                    // </Form.Item>
+                  )}
+                </Form.Item>
 
                 <Form.Item
                   name="password"
@@ -351,19 +478,49 @@ const Login = () => {
                     }
                   />
                 </Form.Item>
-                {OTP && <Form.Item
-                  name="otp"
-                  
-                >
-                  <Input.Password
-                    placeholder="OTP"
-                    // onChange={(e) => setPassword(e.target.value)}
-                    iconRender={(e) =>
-                      e = <a href="#" className ="getotp" style={{color:"#0d6efd !important"}}>GET OTP</a>
-                    }
-                  />
-                </Form.Item>}
-                <div className="mt-3">
+                {OTP && (
+                  <>
+                    <Form.Item
+                      rules={[
+                        {
+                          whitespace: true,
+                          required: true,
+                          message: "Please enter the OTP",
+                        },
+                      ]}
+                      name="otp"
+                    >
+                      <button
+                        className="mt-4"
+                        onClick={() => {
+                          sendVerificationCode();
+                        }}
+                      >
+                        GET OPT
+                      </button>
+                      <Input.Password
+                        placeholder="OTP"
+                        onChange={(e) => setVerificationCode(e.target.value)}
+                        iconRender={(e) =>
+                          (e = (
+                            <span
+                              href="#"
+                              className="getotp"
+                              style={{ color: "#0d6efd !important" }}
+                              onClick={() => {
+                                sendVerificationCode();
+                              }}
+                            >
+                              GET OTP
+                            </span>
+                          ))
+                        }
+                      />
+                    </Form.Item>
+                  </>
+                )}
+
+                <div>
                   <Switch
                     onChange={onChange}
                     // className="mt-4"
@@ -372,7 +529,8 @@ const Login = () => {
                       handleOtherClick();
                       otpfield();
                     }}
-                  />/
+                  />
+                  /
                   <Link to="/forgot_password">
                     <span className="float-end">Forgot Password?</span>
                   </Link>
@@ -380,21 +538,38 @@ const Login = () => {
                 {/* <Link to="/home"> */}
                 <button
                   onClick={() => {
-                    !isSignup ? handleSignUp() : handleSignIn();
+                    // handleSignUpVerificationCode(
+                    //   verificationId,
+                    //   verificationCode,
+                    //   password
+                    // );
+                    // !isSignup ? handleSignUp() : handleSignIn();
+
+                    // !isSignup
+                    //   ? OTP
+                    //     ? handleSignUpVerificationCode(
+                    //         verificationId,
+                    //         verificationCode,
+                    //         password
+                    //       )
+                    //     : handleSignUp()
+                    //   : OTP
+                    //   ? signInWithPhone()
+                    //   : handleSignIn();
+                    signInWithPhone(phoneNumber, password, verificationCode);
                   }}
                   // type="submit"
-                  disabled={isLoading}
+                  // disabled={isLoading}
                   className="signinbutton mt-4"
                 >
                   {!isSignup ? "Register" : "Log in"}
-                  <span
+                  {/* <span
                     className={
                       isLoading &&
                       `spinner-border spinner-border-sm mx-2 text-light`
                     }
-                  ></span>
+                  ></span> */}
                 </button>
-
               </Form>
               {/* </Link> */}
               <button type="submit" className="guest continue">
