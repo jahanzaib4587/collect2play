@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+// import PhoneInput from 'react-phone-number-input'
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { Input, Alert, Form } from "antd";
 import { Switch } from "antd";
@@ -32,6 +35,7 @@ const Login = () => {
   const [isSignup, setIsSignup] = useState(true);
   const [OTP, setOTP] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState();
+  const [phone, setPhone] = useState('');
 
   const [form] = Form.useForm();
 
@@ -246,7 +250,7 @@ const Login = () => {
                 alt=""
                 className="d-block m-auto"
               />
-              <h1>{!isSignup ? "Register" : "Log in"}</h1>
+              <h1 className="mb-4">{!isSignup ? "Register" : "Log in"}</h1>
               <Form form={form}>
                 <motion.div
                   initial={{ opacity: 0, marginBottom: 0 }}
@@ -288,25 +292,46 @@ const Login = () => {
                 )}
 
                 {hideshowphone && (
-                  <Form.Item
-                    name="phone-number"
-                    rules={[
-                      {
-                        whitespace: true,
-                        required: true,
-                        message: "Please enter the phone number",
-                      },
-                    ]}
-                  >
-                    <Input
-                      type="number"
-                      placeholder="Cell Phone"
-                      onChange={(e) => {
-                        setPhoneNumber(e.target.value);
-                      }}
-                    />
-                  </Form.Item>
-                )}
+                 <PhoneInput
+                 inputProps={{
+                   name: 'phone',
+                   required: true,
+                   autoFocus: true,
+                 }}
+                 value={phone}
+                countryCodeEditable ={false}
+                 inputStyle={{
+                  paddingTop: 35,
+                  paddingRight: 14,
+                  paddingBottom: 35,
+                 paddingLeft:50
+                
+                }}
+               
+                 country={'us'}
+                 className= "w-100 phonenumber_field countries"
+                 inputClass = "contact_field"
+               />
+                  // <Form.Item
+                  //   name="phone-number"
+                  //   rules={[
+                  //     {
+                  //       whitespace: true,
+                  //       required: true,
+                  //       message: "Please enter the phone number",
+                  //     },
+                  //   ]}
+                  // >
+                  //   <Input
+                  //     type="number"
+                  //     placeholder="Cell Phone"
+                  //     onChange={(e) => {
+                  //       setPhoneNumber(e.target.value);
+                  //     }}
+                  //   />
+                  // </Form.Item>
+                )
+                }
 
                 <Form.Item
                   name="password"
@@ -326,11 +351,22 @@ const Login = () => {
                     }
                   />
                 </Form.Item>
-                {OTP && <input type="text" placeholder="OTP" />}
+                {OTP && <Form.Item
+                  name="otp"
+                  
+                >
+                  <Input.Password
+                    placeholder="OTP"
+                    // onChange={(e) => setPassword(e.target.value)}
+                    iconRender={(e) =>
+                      e = <a href="#" className ="getotp" style={{color:"#0d6efd !important"}}>GET OTP</a>
+                    }
+                  />
+                </Form.Item>}
                 <div className="mt-3">
                   <Switch
                     onChange={onChange}
-                    className="mt-4"
+                    // className="mt-4"
                     onClick={() => {
                       handleClick();
                       handleOtherClick();

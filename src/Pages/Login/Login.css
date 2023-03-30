@@ -3,6 +3,11 @@
   /* height: 100vh; */
   padding-top: 40px;
 }
+.register_Background {
+  background-color: #191a1e;
+  /* height: 100vh; */
+  padding-top: 40px;
+}
 .Wrapper {
   /* height: 100vh; */
 }
@@ -16,11 +21,11 @@
 }
 .Wrapper img {
   width: 120px;
-  padding-bottom: 25px;
+  padding-bottom: 15px;
 }
 .Wrapper input {
   width: 100%;
-  background-color: #0e0f11;
+  background-color: #0e0f11 !important;
   padding: 20px;
   color: white !important;
   font-family: "Poppins" !important;
@@ -28,7 +33,7 @@
   font-weight: 500 !important;
   font-size: 20px !important;
   border: none;
-  margin-top: 30px;
+  margin-top: 20px;
   border-radius: 10px;
 }
 .Wrapper .signinbutton {
@@ -95,21 +100,30 @@
     font-size: 20px;
     padding-top: 6px;
   }
+
+  .ant-form-item{
+    margin-bottom: 0px !important;
+  }
   input[type="text"] {
     font-size: 15px !important;
   }
   .login_Background {
     padding-top: 20px;
+    height: 105vh;
+
   }
   .Wrapper span {
     font-size: 15px !important;
   }
   .Wrapper input {
     font-size: 15px !important;
-    padding: 0px !important;
-    padding-left: 20px !important;
+    /* padding: 0px !important; */
+    /* padding-left: 20px !important; */
     height: 44px !important;
-    margin-top: 15px !important;
+    /* margin-top: 15px !important; */
+  }
+  .contact_field{
+    padding: 11px 14px 11px 50px !important;
   }
   .Wrapper .signinbutton {
     font-size: 15px !important;
@@ -147,6 +161,9 @@
   input[type="password"] {
     margin-top: 0px !important;
   }
+  .phonenumber_field {
+    margin-bottom: 0px !important;
+  }
 }
 
 .anticon svg {
@@ -176,4 +193,63 @@ input::-webkit-inner-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
+}
+.getotp{
+  color: #007fff;
+}
+.phonenumber_field input{
+  border: none !important;
+  width: 100% !important;
+}
+.countries{
+  margin-bottom: 20px;
+}
+.flag-dropdown {
+  background-color: #0e0f11 !important;
+  border: none !important;
+}
+.flag-dropdown:hover {
+  background-color: #0e0f11 !important;
+  border: none !important;
+}
+.country-list{
+  background-color: #0e0f11 !important;
+
+}
+.country-list span{
+  color: white !important;
+
+}
+.country-list li:hover{
+  background-color: #1e2022 !important;
+
+}
+.country-list li{
+  background-color: #0e0f11 !important;
+
+}
+/* Set the width and height of the scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+.contact_field{
+  padding-left: 50px;
+  border-radius: 10px !important;
 }
