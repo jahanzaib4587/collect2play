@@ -275,7 +275,7 @@ const Login = () => {
   };
 
   const signInWithPhone = async (phoneNumber, password, verificationCode) => {
-    debugger
+    debugger;
     try {
       // Verify the code first
       const credential = await signInWithPhoneNumber(
@@ -545,18 +545,20 @@ const Login = () => {
                     // );
                     // !isSignup ? handleSignUp() : handleSignIn();
 
-                    // !isSignup
-                    //   ? OTP
-                    //     ? handleSignUpVerificationCode(
-                    //         verificationId,
-                    //         verificationCode,
-                    //         password
-                    //       )
-                    //     : handleSignUp()
-                    //   : OTP
-                    //   ? signInWithPhone()
-                    //   : handleSignIn();
-                    signInWithPhone(phoneNumber, password, verificationCode);
+                    !isSignup
+                      ? OTP
+                        ? handleSignUpVerificationCode(
+                            verificationId,
+                            verificationCode,
+                            password
+                          )
+                        : handleSignUp()
+                      : OTP
+                      ? signInWithPhone(phoneNumber, password, verificationCode)
+                      : handleSignIn();
+
+
+                    // signInWithPhone(phoneNumber, password, verificationCode);
                   }}
                   // type="submit"
                   // disabled={isLoading}
