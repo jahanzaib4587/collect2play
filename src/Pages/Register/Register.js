@@ -64,7 +64,7 @@ const Register = () => {
                   placeholder="OTP"
 
                 />}
-                <Switch onChange={onChange} className="mt-4"
+                <Switch onChange={onChange} 
                   onClick={() => { handleClick(); handleOtherClick(); otpfield(); }}
                 />
                 {/* <span className="float-end py-3">Forgot Password?</span> */}

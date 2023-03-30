@@ -70,10 +70,10 @@
   }
   .Wrapper input {
     font-size: 15px !important;
-    padding: 0px !important;
-    padding-left: 20px !important;
+    /* padding: 0px !important; */
+    /* padding-left: 20px !important; */
     height: 44px !important;
-    margin-top: 15px !important;
+    /* margin-top: 15px !important; */
   }
   .Wrapper .signinbutton {
     font-size: 15px !important;
