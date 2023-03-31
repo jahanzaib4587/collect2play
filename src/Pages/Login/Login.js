@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // import PhoneInput from 'react-phone-number-input'
-import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { Input, Alert, Form } from "antd";
 import { Switch } from "antd";
@@ -15,7 +15,10 @@ import {
   signInWithPopup,
   FacebookAuthProvider,
   TwitterAuthProvider,
-  sendEmailVerification
+  sendEmailVerification,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+  updateProfile,
 } from "firebase/auth";
 import firebaseConfig from "../../Firebase/Firebase";
 import "./Login.css";
@@ -35,7 +38,11 @@ const Login = () => {
   const [isSignup, setIsSignup] = useState(true);
   const [OTP, setOTP] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState();
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState("");
+  ////
+  const [verificationId, setVerificationId] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  ////
 
   const [form] = Form.useForm();
 
@@ -53,12 +60,14 @@ const Login = () => {
         setShowNotification(false);
         setNotificationText("");
 
-        if (notificationText === "Please verify your email before signing in.") {
+        if (
+          notificationText === "Please verify your email before signing in."
+        ) {
           window.location.href = "/resend_verification_email";
         }
       }, 2000);
     }
-    return () => { };
+    return () => {};
   }, [showNotification]);
 
   const handleGoogleSignIn = async () => {
@@ -108,67 +117,69 @@ const Login = () => {
       console.log(error);
     }
   };
-  const handleSignIn = (event) => {
+  const handleSignIn = () => {
     form
       .validateFields()
       .then(() => {
+        let newEmail = OTP ? `${phoneNumber}@c2p.com` : email;
+
         setIsLoading(true);
 
         // Check if the user's email is verified before signing in
 
-
-        signInWithEmailAndPassword(auth, email, password)
+        signInWithEmailAndPassword(auth, newEmail, password)
           .then((userCredential) => {
             const user = userCredential.user;
             if (user.emailVerified) {
-              debugger
               localStorage.setItem("access_token", user.accessToken);
               console.log(user);
               window.location.href = "/";
-            }
-            else {
+            } else {
               // User's email has not been verified
 
               handleNotification("Please verify your email before signing in.");
-
             }
           })
           .catch((error) => {
             handleNotification(getFriendlyErrorMessage(error));
           });
-
       })
-      .catch(() => { });
+      .catch(() => {});
   };
 
-
   const handleSignUp = () => {
-    form.validateFields().then(() => {
-      setIsLoading(true);
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          // Signed up successfully
-          const user = userCredential.user;
-          sendEmailVerification(user)
-            .then(() => {
-              // Verification email sent successfully
-              handleNotification("Please check your email to verify your account.", "success");
-              setIsSignup(true)
-            })
-            .catch((error) => {
-              handleNotification(getFriendlyErrorMessage(error));
+    form
+      .validateFields()
+      .then(() => {
+        setIsLoading(true);
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            // Signed up successfully
+            const user = userCredential.user;
+            sendEmailVerification(user)
+              .then(() => {
+                // Verification email sent successfully
+                handleNotification(
+                  "Please check your email to verify your account.",
+                  "success"
+                );
+                setIsSignup(true);
+              })
+              .catch((error) => {
+                handleNotification(getFriendlyErrorMessage(error));
 
-              // Handle email verification errors here
-              console.log(error);
-            });
-        })
-        .catch((error) => {
-          handleNotification(getFriendlyErrorMessage(error));
+                // Handle email verification errors here
+                console.log(error);
+              });
+          })
+          .catch((error) => {
+            handleNotification(getFriendlyErrorMessage(error));
 
-          // Handle sign-up errors here
-          console.log(error);
-        });
-    }).catch(() => { });
+            // Handle sign-up errors here
+            console.log(error);
+          });
+      })
+      .catch(() => {});
   };
 
   const apiData = {
@@ -226,8 +237,7 @@ const Login = () => {
     setEmail("");
     setPassword("");
     setPhoneNumber(null);
-  }, [isSignup])
-
+  }, [isSignup]);
 
   function handleNotification(message, type = "error") {
     setNotificationText(message);
@@ -236,8 +246,90 @@ const Login = () => {
     setIsLoading(false);
   }
 
+  function onCaptchVerify() {
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      "recaptcha-container",
+      {
+        size: "invisible",
+        callback: (response) => {
+          sendVerificationCode();
+        },
+        "expired-callback": () => {},
+      },
+      auth
+    );
+  }
+
+  function sendVerificationCode() {
+    onCaptchVerify();
+    const appVerifier = window.recaptchaVerifier;
+    const phoneTemp = "+" + phoneNumber;
+
+    signInWithPhoneNumber(auth, phoneTemp, appVerifier)
+      .then((confirmationResult) => {
+        window.confirmationResult = confirmationResult;
+
+        setVerificationId(confirmationResult);
+
+        console.log("OPT SEND");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  async function registerUserWithPhoneNumber(
+    verificationCode,
+    email,
+    password
+  ) {
+    try {
+      // Send the verification code to the user's phone number
+      //  const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber);
+
+      //  console.log(confirmationResult);
+
+      // Confirm the verification code that the user enters
+      const credential = await verificationId.confirm(verificationCode);
+
+      // Create a new user with their email and password
+
+      console.log(credential, "credentia");
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      updateProfile(user, {
+        emailVerified: true,
+      })
+        .then(() => {
+          console.log("verified successfully");
+        })
+        .catch((error) => {
+          // error updating emailVerified
+        });
+
+      // // Update the user's profile with their phone number
+      // await user.updatePhoneNumber(credential);
+
+      // // Return the user's data
+      // return {
+      //   uid: user.uid,
+      //   email: user.email,
+      //   phoneNumber: user.phoneNumber,
+      // };
+    } catch (error) {
+      console.error(error);
+      handleNotification("Phone Number has already been taken");
+    }
+  }
+
   return (
     <>
+      <div id="recaptcha-container"></div>
       <div className="login_Background">
         <div className="container">
           <div className="row Wrapper align-items-center justify-content-center">
@@ -292,26 +384,27 @@ const Login = () => {
                 )}
 
                 {hideshowphone && (
-                 <PhoneInput
-                 inputProps={{
-                   name: 'phone',
-                   required: true,
-                   autoFocus: true,
-                 }}
-                 value={phone}
-                countryCodeEditable ={false}
-                 inputStyle={{
-                  paddingTop: 35,
-                  paddingRight: 14,
-                  paddingBottom: 35,
-                 paddingLeft:50
-                
-                }}
-               
-                 country={'us'}
-                 className= "w-100 phonenumber_field countries"
-                 inputClass = "contact_field"
-               />
+                  <PhoneInput
+                    inputProps={{
+                      name: "phone",
+                      required: true,
+                      autoFocus: true,
+                    }}
+                    value={phoneNumber}
+                    onChange={(e) => {
+                      setPhoneNumber(e);
+                    }}
+                    countryCodeEditable={false}
+                    inputStyle={{
+                      paddingTop: 35,
+                      paddingRight: 14,
+                      paddingBottom: 35,
+                      paddingLeft: 50,
+                    }}
+                    country={"us"}
+                    className="w-100 phonenumber_field countries"
+                    inputClass="contact_field"
+                  />
                   // <Form.Item
                   //   name="phone-number"
                   //   rules={[
@@ -330,8 +423,7 @@ const Login = () => {
                   //     }}
                   //   />
                   // </Form.Item>
-                )
-                }
+                )}
 
                 <Form.Item
                   name="password"
@@ -351,18 +443,32 @@ const Login = () => {
                     }
                   />
                 </Form.Item>
-                {OTP && <Form.Item
-                  name="otp"
-                  
+                {OTP && (
+                  <Form.Item name="otp">
+                    <Input.Password
+                      placeholder="OTP"
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      iconRender={(e) =>
+                        (e = (
+                          <a
+                            href="#"
+                            className="getotp"
+                            style={{ color: "#0d6efd !important" }}
+                          >
+                            GET OTP
+                          </a>
+                        ))
+                      }
+                    />
+                  </Form.Item>
+                )}
+                <button
+                  onClick={() => {
+                    sendVerificationCode(verificationCode, email, password);
+                  }}
                 >
-                  <Input.Password
-                    placeholder="OTP"
-                    // onChange={(e) => setPassword(e.target.value)}
-                    iconRender={(e) =>
-                      e = <a href="#" className ="getotp" style={{color:"#0d6efd !important"}}>GET OTP</a>
-                    }
-                  />
-                </Form.Item>}
+                  GET OTP
+                </button>
                 <div className="mt-3">
                   <Switch
                     onChange={onChange}
@@ -372,7 +478,8 @@ const Login = () => {
                       handleOtherClick();
                       otpfield();
                     }}
-                  />/
+                  />
+                  /
                   <Link to="/forgot_password">
                     <span className="float-end">Forgot Password?</span>
                   </Link>
@@ -380,7 +487,17 @@ const Login = () => {
                 {/* <Link to="/home"> */}
                 <button
                   onClick={() => {
-                    !isSignup ? handleSignUp() : handleSignIn();
+                    OTP
+                      ? !isSignup
+                        ? registerUserWithPhoneNumber(
+                            verificationCode,
+                            `${phoneNumber}@c2p.com`,
+                            password
+                          )
+                        : handleSignIn()
+                      : !isSignup
+                      ? handleSignUp()
+                      : handleSignIn();
                   }}
                   // type="submit"
                   disabled={isLoading}
@@ -394,7 +511,6 @@ const Login = () => {
                     }
                   ></span>
                 </button>
-
               </Form>
               {/* </Link> */}
               <button type="submit" className="guest continue">
