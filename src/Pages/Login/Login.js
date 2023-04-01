@@ -60,7 +60,7 @@ const Login = () => {
         }
       }, 2000);
     }
-    return () => {};
+    return () => { };
   }, [showNotification]);
 
   const handleGoogleSignIn = async () => {
@@ -123,7 +123,7 @@ const Login = () => {
             handleNotification(getFriendlyErrorMessage(error));
           });
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   const handleSignUp = () => {
@@ -132,14 +132,21 @@ const Login = () => {
       .then(() => {
         setIsLoading(true);
         createUserWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
-            const user = userCredential.user;
+          .then((credential) => {
+            const user = credential.user;
             sendEmailVerification(user)
               .then(() => {
                 handleNotification(
                   "Please check your email to verify your account.",
                   "success"
                 );
+                const userApi = {
+                  firebase_relay: `${credential._tokenResponse.localId}`,
+                  email: credential.user.email,
+                  c2p_user_role: 1,
+                  password: password,
+                };
+                handleSubmit(userApi);
                 setIsSignup(true);
               })
               .catch((error) => {
@@ -150,7 +157,7 @@ const Login = () => {
             handleNotification(getFriendlyErrorMessage(error));
           });
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   function handleClick() {
@@ -182,11 +189,18 @@ const Login = () => {
         return response.json();
       })
       .then((data) => {
-        handleNotification(
-          "Successfully Signed Up, Please use credentials to login",
-          "success"
-        );
-        setIsSignup(true);
+        if (data.type == "error")
+          handleNotification(
+            "Phone number has already been taken",
+            "error"
+          );
+        else {
+          handleNotification(
+            "Successfully Signed Up, Please use credentials to login",
+            "success"
+          );
+          setIsSignup(true);
+        }
       })
       .catch((error) => {
         handleNotification(error);
@@ -214,7 +228,7 @@ const Login = () => {
         callback: (response) => {
           sendVerificationCode();
         },
-        "expired-callback": () => {},
+        "expired-callback": () => { },
       },
       auth
     );
@@ -236,7 +250,8 @@ const Login = () => {
 
   async function registerUserWithPhoneNumber(verificationCode, password) {
     try {
-      //  const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber);
+      await form.validateFields() // Validate form fields
+
       const credential = await verificationId.confirm(verificationCode);
       const userApi = {
         firebase_relay: `${credential._tokenResponse.localId}`,
@@ -246,9 +261,16 @@ const Login = () => {
       };
       handleSubmit(userApi);
     } catch (error) {
-      handleNotification("Phone Number has already been taken");
+      if (!password || !phoneNumber || !verificationCode) {
+        handleNotification("Please enter all the required values")
+      }
+      else {
+        handleNotification(getFriendlyErrorMessage(error));
+
+      }
     }
   }
+
 
   return (
     <>
@@ -348,32 +370,31 @@ const Login = () => {
                     }
                   />
                 </Form.Item>
-                {OTP && (
+                {OTP && !isSignup && (
                   <Form.Item name="otp">
                     <Input.Password
+                      maxLength={8}
                       placeholder="OTP"
                       onChange={(e) => setVerificationCode(e.target.value)}
-                      iconRender={(e) =>
-                        (e = (
-                          <a
-                            href="#"
-                            className="getotp"
-                            style={{ color: "#0d6efd !important" }}
-                          >
-                            GET OTP
-                          </a>
-                        ))
+                      iconRender={(visible) =>
+                        visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
                       }
+
                     />
                   </Form.Item>
                 )}
-                <button
-                  onClick={() => {
-                    sendVerificationCode(verificationCode, email, password);
-                  }}
-                >
-                  GET OTP
-                </button>
+                {OTP && !isSignup &&
+                  <Form.Item name="otp1" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      className="getotp"
+                      style={{ color: "#0d6efd !important", background: 'transparent', border: 'none' }}
+                      onClick={() => {
+                        sendVerificationCode(verificationCode, email, password);
+                      }}
+                    >
+                      GET OTP
+                    </button>
+                  </Form.Item >}
                 <div className="mt-3">
                   <Switch
                     onChange={onChange}
@@ -384,10 +405,13 @@ const Login = () => {
                       otpfield();
                     }}
                   />
-                  /
-                  <Link to="/forgot_password">
-                    <span className="float-end">Forgot Password?</span>
-                  </Link>
+
+                  {
+                    !OTP &&
+                    <Link to="/forgot_password">
+                      <span className="float-end">Forgot Password?</span>
+                    </Link>
+                  }
                 </div>
                 {/* <Link to="/home"> */}
                 <button
@@ -395,14 +419,13 @@ const Login = () => {
                     OTP
                       ? !isSignup
                         ? registerUserWithPhoneNumber(
-                            verificationCode,
-                            `${phoneNumber}@c2p.com`,
-                            password
-                          )
+                          verificationCode,
+                          password
+                        )
                         : handleSignIn()
                       : !isSignup
-                      ? handleSignUp()
-                      : handleSignIn();
+                        ? handleSignUp()
+                        : handleSignIn();
                   }}
                   // type="submit"
                   disabled={isLoading}
