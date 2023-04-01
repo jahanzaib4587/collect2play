@@ -393,7 +393,7 @@ const Login = () => {
                   <Form.Item name="otp1" style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <button
                       className="getotp"
-                      style={{ color: "#0d6efd !important", background: 'transparent', border: 'none' }}
+                      style={{ color: "#0d6efd !important", background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '18px' }}
                       onClick={() => {
                         sendVerificationCode(verificationCode, email, password);
                       }}
