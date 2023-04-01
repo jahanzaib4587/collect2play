@@ -112,11 +112,17 @@ const Login = () => {
         signInWithEmailAndPassword(auth, newEmail, password)
           .then((userCredential) => {
             const user = userCredential.user;
-            if (user.emailVerified) {
+            if (OTP) {
               localStorage.setItem("access_token", user.accessToken);
               window.location.href = "/";
-            } else {
-              handleNotification("Please verify your email before signing in.");
+            }
+            else {
+              if (user.emailVerified) {
+                localStorage.setItem("access_token", user.accessToken);
+                window.location.href = "/";
+              } else {
+                handleNotification("Please verify your email before signing in.");
+              }
             }
           })
           .catch((error) => {
