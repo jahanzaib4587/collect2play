@@ -12,6 +12,8 @@ export function getFriendlyErrorMessage(error) {
       return "User not found. Please check your email address and try again.";
     case "auth/invalid-email":
       return "Invalid email address. Please check your email address and try again.";
+    case "auth/invalid-code":
+      return "Invalid OTP code. Please try again.";
     case "auth/expired-action-code":
       return "The password reset link has expired. Please request a new link.";
     case "auth/invalid-action-code":

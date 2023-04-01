@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-// import PhoneInput from 'react-phone-number-input'
-import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
+import { Link } from "react-router-dom";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { Input, Alert, Form } from "antd";
 import { Switch } from "antd";
@@ -15,7 +14,9 @@ import {
   signInWithPopup,
   FacebookAuthProvider,
   TwitterAuthProvider,
-  sendEmailVerification
+  sendEmailVerification,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
 } from "firebase/auth";
 import firebaseConfig from "../../Firebase/Firebase";
 import "./Login.css";
@@ -26,17 +27,16 @@ const Login = () => {
   const [hideshowemail, setHideshowEmail] = useState(true);
   const [hideshowphone, setHideshowPhone] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
-  const [notificationText, setNotificationText] = useState("abc");
+  const [notificationText, setNotificationText] = useState("Norification");
   const [isLoading, setIsLoading] = useState(false);
   const [notificationType, setNotificationType] = useState("error");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const firebase_relay_id = "ifV6F0TgYgXDqybVfJylNYHzwdD2";
   const [isSignup, setIsSignup] = useState(true);
   const [OTP, setOTP] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState();
-  const [phone, setPhone] = useState('');
-
+  const [verificationId, setVerificationId] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
   const [form] = Form.useForm();
 
   function otpfield() {
@@ -53,7 +53,9 @@ const Login = () => {
         setShowNotification(false);
         setNotificationText("");
 
-        if (notificationText === "Please verify your email before signing in.") {
+        if (
+          notificationText === "Please verify your email before signing in."
+        ) {
           window.location.href = "/resend_verification_email";
         }
       }, 2000);
@@ -71,11 +73,8 @@ const Login = () => {
       localStorage.setItem("access_token", token);
       const user = result.user;
       window.location.href = "/";
-      console.log(token, user);
     } catch (error) {
       handleNotification(getFriendlyErrorMessage(error));
-
-      console.log(error);
     }
   };
 
@@ -87,7 +86,6 @@ const Login = () => {
       const user = result.user;
       localStorage.setItem("access_token", token);
       window.location.href = "/";
-      console.log(token, user);
     } catch (error) {
       handleNotification(getFriendlyErrorMessage(error));
     }
@@ -101,78 +99,71 @@ const Login = () => {
       const user = result.user;
       localStorage.setItem("access_token", token);
       window.location.href = "/";
-      console.log(token, user);
     } catch (error) {
       handleNotification(getFriendlyErrorMessage(error));
-
-      console.log(error);
     }
   };
-  const handleSignIn = (event) => {
+  const handleSignIn = () => {
     form
       .validateFields()
       .then(() => {
+        let newEmail = OTP ? `${phoneNumber}@c2p.com` : email;
         setIsLoading(true);
-
-        // Check if the user's email is verified before signing in
-
-
-        signInWithEmailAndPassword(auth, email, password)
+        signInWithEmailAndPassword(auth, newEmail, password)
           .then((userCredential) => {
             const user = userCredential.user;
-            if (user.emailVerified) {
-              debugger
+            if (OTP) {
               localStorage.setItem("access_token", user.accessToken);
-              console.log(user);
               window.location.href = "/";
             }
             else {
-              // User's email has not been verified
-
-              handleNotification("Please verify your email before signing in.");
-
+              if (user.emailVerified) {
+                localStorage.setItem("access_token", user.accessToken);
+                window.location.href = "/";
+              } else {
+                handleNotification("Please verify your email before signing in.");
+              }
             }
           })
           .catch((error) => {
             handleNotification(getFriendlyErrorMessage(error));
           });
-
       })
       .catch(() => { });
   };
 
-
   const handleSignUp = () => {
-    form.validateFields().then(() => {
-      setIsLoading(true);
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          // Signed up successfully
-          const user = userCredential.user;
-          sendEmailVerification(user)
-            .then(() => {
-              // Verification email sent successfully
-              handleNotification("Please check your email to verify your account.", "success");
-              setIsSignup(true)
-            })
-            .catch((error) => {
-              handleNotification(getFriendlyErrorMessage(error));
-
-              // Handle email verification errors here
-              console.log(error);
-            });
-        })
-        .catch((error) => {
-          handleNotification(getFriendlyErrorMessage(error));
-
-          // Handle sign-up errors here
-          console.log(error);
-        });
-    }).catch(() => { });
-  };
-
-  const apiData = {
-    firebase_relay: firebase_relay_id,
+    form
+      .validateFields()
+      .then(() => {
+        setIsLoading(true);
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((credential) => {
+            const user = credential.user;
+            sendEmailVerification(user)
+              .then(() => {
+                handleNotification(
+                  "Please check your email to verify your account.",
+                  "success"
+                );
+                const userApi = {
+                  firebase_relay: `${credential._tokenResponse.localId}`,
+                  email: credential.user.email,
+                  c2p_user_role: 1,
+                  password: password,
+                };
+                handleSubmit(userApi);
+                setIsSignup(true);
+              })
+              .catch((error) => {
+                handleNotification(getFriendlyErrorMessage(error));
+              });
+          })
+          .catch((error) => {
+            handleNotification(getFriendlyErrorMessage(error));
+          });
+      })
+      .catch(() => { });
   };
 
   function handleClick() {
@@ -183,42 +174,42 @@ const Login = () => {
   }
 
   const onChange = (checked) => {
-    console.log(`switch to ${checked}`);
-
     form.resetFields();
     setEmail("");
     setPassword("");
     setPhoneNumber(null);
   };
-  function handleSubmit() {
-    fetch(
-      "https://console.collect2play.com/api/auth/user_by_firebase_relay_id",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(apiData),
-      }
-    )
+
+  function handleSubmit(userApi) {
+    fetch("https://console.collect2play.com/api/auth/create_user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userApi),
+    })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          handleNotification(response);
         }
         return response.json();
       })
       .then((data) => {
-        console.log(data);
-
-        // setIsLoading(false);
-        // localStorage.setItem("access_token", data.id);
-        // setData(data);
-        // navigate("/");
+        if (data.type == "error")
+          handleNotification(
+            "Phone number has already been taken",
+            "error"
+          );
+        else {
+          handleNotification(
+            "Successfully Signed Up, Please use credentials to login",
+            "success"
+          );
+          setIsSignup(true);
+        }
       })
       .catch((error) => {
-        console.log(error);
-        // setIsLoading(false);
-        // setError(error);
+        handleNotification(error);
       });
   }
   useEffect(() => {
@@ -226,8 +217,7 @@ const Login = () => {
     setEmail("");
     setPassword("");
     setPhoneNumber(null);
-  }, [isSignup])
-
+  }, [isSignup]);
 
   function handleNotification(message, type = "error") {
     setNotificationText(message);
@@ -236,8 +226,61 @@ const Login = () => {
     setIsLoading(false);
   }
 
+  function onCaptchVerify() {
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      "recaptcha-container",
+      {
+        size: "invisible",
+        callback: (response) => {
+          sendVerificationCode();
+        },
+        "expired-callback": () => { },
+      },
+      auth
+    );
+  }
+
+  function sendVerificationCode() {
+    onCaptchVerify();
+    const appVerifier = window.recaptchaVerifier;
+    const phoneTemp = "+" + phoneNumber;
+    signInWithPhoneNumber(auth, phoneTemp, appVerifier)
+      .then((confirmationResult) => {
+        window.confirmationResult = confirmationResult;
+        setVerificationId(confirmationResult);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  async function registerUserWithPhoneNumber(verificationCode, password) {
+    try {
+      await form.validateFields() // Validate form fields
+
+      const credential = await verificationId.confirm(verificationCode);
+      const userApi = {
+        firebase_relay: `${credential._tokenResponse.localId}`,
+        phone_no: credential.user.phoneNumber,
+        c2p_user_role: 1,
+        password: password,
+      };
+      handleSubmit(userApi);
+    } catch (error) {
+      if (!password || !phoneNumber || !verificationCode) {
+        handleNotification("Please enter all the required values")
+      }
+      else {
+        handleNotification(getFriendlyErrorMessage(error));
+
+      }
+    }
+  }
+
+
   return (
     <>
+      <div id="recaptcha-container"></div>
       <div className="login_Background">
         <div className="container">
           <div className="row Wrapper align-items-center justify-content-center">
@@ -292,46 +335,28 @@ const Login = () => {
                 )}
 
                 {hideshowphone && (
-                 <PhoneInput
-                 inputProps={{
-                   name: 'phone',
-                   required: true,
-                   autoFocus: true,
-                 }}
-                 value={phone}
-                countryCodeEditable ={false}
-                 inputStyle={{
-                  paddingTop: 35,
-                  paddingRight: 14,
-                  paddingBottom: 35,
-                 paddingLeft:50
-                
-                }}
-               
-                 country={'us'}
-                 className= "w-100 phonenumber_field countries"
-                 inputClass = "contact_field"
-               />
-                  // <Form.Item
-                  //   name="phone-number"
-                  //   rules={[
-                  //     {
-                  //       whitespace: true,
-                  //       required: true,
-                  //       message: "Please enter the phone number",
-                  //     },
-                  //   ]}
-                  // >
-                  //   <Input
-                  //     type="number"
-                  //     placeholder="Cell Phone"
-                  //     onChange={(e) => {
-                  //       setPhoneNumber(e.target.value);
-                  //     }}
-                  //   />
-                  // </Form.Item>
-                )
-                }
+                  <PhoneInput
+                    inputProps={{
+                      name: "phone",
+                      required: true,
+                      autoFocus: true,
+                    }}
+                    value={phoneNumber}
+                    onChange={(e) => {
+                      setPhoneNumber(e);
+                    }}
+                    countryCodeEditable={false}
+                    inputStyle={{
+                      paddingTop: 35,
+                      paddingRight: 14,
+                      paddingBottom: 35,
+                      paddingLeft: 50,
+                    }}
+                    country={"us"}
+                    className="w-100 phonenumber_field countries"
+                    inputClass="contact_field"
+                  />
+                )}
 
                 <Form.Item
                   name="password"
@@ -351,18 +376,31 @@ const Login = () => {
                     }
                   />
                 </Form.Item>
-                {OTP && <Form.Item
-                  name="otp"
-                  
-                >
-                  <Input.Password
-                    placeholder="OTP"
-                    // onChange={(e) => setPassword(e.target.value)}
-                    iconRender={(e) =>
-                      e = <a href="#" className ="getotp" style={{color:"#0d6efd !important"}}>GET OTP</a>
-                    }
-                  />
-                </Form.Item>}
+                {OTP && !isSignup && (
+                  <Form.Item name="otp">
+                    <Input.Password
+                      maxLength={8}
+                      placeholder="OTP"
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      iconRender={(visible) =>
+                        visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                      }
+
+                    />
+                  </Form.Item>
+                )}
+                {OTP && !isSignup &&
+                  <Form.Item name="otp1" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      className="getotp"
+                      style={{ color: "#0d6efd !important", background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '18px' }}
+                      onClick={() => {
+                        sendVerificationCode(verificationCode, email, password);
+                      }}
+                    >
+                      GET OTP
+                    </button>
+                  </Form.Item >}
                 <div className="mt-3">
                   <Switch
                     onChange={onChange}
@@ -372,15 +410,28 @@ const Login = () => {
                       handleOtherClick();
                       otpfield();
                     }}
-                  />/
-                  <Link to="/forgot_password">
-                    <span className="float-end">Forgot Password?</span>
-                  </Link>
+                  />
+
+                  {
+                    !OTP &&
+                    <Link to="/forgot_password">
+                      <span className="float-end">Forgot Password?</span>
+                    </Link>
+                  }
                 </div>
                 {/* <Link to="/home"> */}
                 <button
                   onClick={() => {
-                    !isSignup ? handleSignUp() : handleSignIn();
+                    OTP
+                      ? !isSignup
+                        ? registerUserWithPhoneNumber(
+                          verificationCode,
+                          password
+                        )
+                        : handleSignIn()
+                      : !isSignup
+                        ? handleSignUp()
+                        : handleSignIn();
                   }}
                   // type="submit"
                   disabled={isLoading}
@@ -394,7 +445,6 @@ const Login = () => {
                     }
                   ></span>
                 </button>
-
               </Form>
               {/* </Link> */}
               <button type="submit" className="guest continue">
