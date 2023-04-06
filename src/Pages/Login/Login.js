@@ -69,7 +69,7 @@ const Login = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential.accessToken;
+      const token = credential.user.uid;
       localStorage.setItem("access_token", token);
       const user = result.user;
       window.location.href = "/";
@@ -82,7 +82,7 @@ const Login = () => {
     const provider = new FacebookAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      const token = result.credential.accessToken;
+      const token = result.user.uid;
       const user = result.user;
       localStorage.setItem("access_token", token);
       window.location.href = "/";
@@ -95,7 +95,7 @@ const Login = () => {
     const provider = new TwitterAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      const token = result.credential.accessToken;
+      const token = result.result.user.uid;
       const user = result.user;
       localStorage.setItem("access_token", token);
       window.location.href = "/";
@@ -113,12 +113,12 @@ const Login = () => {
           .then((userCredential) => {
             const user = userCredential.user;
             if (OTP) {
-              localStorage.setItem("access_token", user.accessToken);
+              localStorage.setItem("access_token", user.uid);
               window.location.href = "/";
             }
             else {
               if (user.emailVerified) {
-                localStorage.setItem("access_token", user.accessToken);
+                localStorage.setItem("access_token", user.uid);
                 window.location.href = "/";
               } else {
                 handleNotification("Please verify your email before signing in.");
@@ -147,7 +147,7 @@ const Login = () => {
                   "success"
                 );
                 const userApi = {
-                  firebase_relay: `${credential._tokenResponse.localId}`,
+                  firebase_relay: `${credential.user.uid}`,
                   email: credential.user.email,
                   c2p_user_role: 1,
                   password: password,
@@ -250,7 +250,7 @@ const Login = () => {
         setVerificationId(confirmationResult);
       })
       .catch((error) => {
-        console.log(error);
+        handleNotification(getFriendlyErrorMessage(error));
       });
   }
 
@@ -258,9 +258,9 @@ const Login = () => {
     try {
       await form.validateFields() // Validate form fields
 
-      const credential = await verificationId.confirm(verificationCode);
+      const credential = verificationId && await verificationId.confirm(verificationCode);
       const userApi = {
-        firebase_relay: `${credential._tokenResponse.localId}`,
+        firebase_relay: `${credential.user.uid}`,
         phone_no: credential.user.phoneNumber,
         c2p_user_role: 1,
         password: password,
