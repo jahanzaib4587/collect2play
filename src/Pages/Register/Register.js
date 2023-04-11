@@ -5,11 +5,11 @@ import { Button, Input, Space } from 'antd';
 import { Switch } from 'antd';
 const Register = () => {
 
-const [hideshowemail, setHideshowEmail] = useState(true);
-const [hideshowphone, setHideshowPhone] = useState(false);
-const [OTP, setOTP] = useState(false);
-function handleClick() {
-   setHideshowEmail(!hideshowemail);
+  const [hideshowemail, setHideshowEmail] = useState(true);
+  const [hideshowphone, setHideshowPhone] = useState(false);
+  const [OTP, setOTP] = useState(false);
+  function handleClick() {
+    setHideshowEmail(!hideshowemail);
   }
   function handleOtherClick() {
     setHideshowPhone(!hideshowphone)
@@ -17,9 +17,9 @@ function handleClick() {
   function otpfield() {
     setOTP(!OTP)
   }
-    const onChange = (checked) => {
-        console.log(`switch to ${checked}`);
-      };
+  const onChange = (checked) => {
+    console.log(`switch to ${checked}`);
+  };
   return (
     <>
       <div className="login_Background">
@@ -36,17 +36,17 @@ function handleClick() {
                   className="d-block m-auto"
                 />
                 <h1>Registration</h1>
-               {hideshowemail && <input
+                {hideshowemail && <input
                   type="email"
                   placeholder="Email"
-                 
+
                 />}
-                
-         {hideshowphone && <input
+
+                {hideshowphone && <input
                   type="text"
                   placeholder="Cell Phone"
                 />}
-                
+
                 {/* <input
                   type="password"
                   placeholder="Password"
@@ -54,19 +54,19 @@ function handleClick() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 /> */}
-                        <Input.Password
-                       
-        placeholder="Password"
-        iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-      />
-       {OTP && <input
+                <Input.Password
+
+                  placeholder="Password"
+                  iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                />
+                {OTP && <input
                   type="text"
                   placeholder="OTP"
-                 
+
                 />}
-      <Switch  onChange={onChange} className ="mt-4"
-      onClick={()=>{handleClick(); handleOtherClick(); otpfield();}}
-      />
+                <Switch onChange={onChange} 
+                  onClick={() => { handleClick(); handleOtherClick(); otpfield(); }}
+                />
                 {/* <span className="float-end py-3">Forgot Password?</span> */}
                 <button type="submit" className="signinbutton mt-4">
                   Register

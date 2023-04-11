@@ -1,173 +1,255 @@
-.login_Background{
-    background-color: #191A1E;
-    /* height: 100vh; */
-    padding-top: 40px;
+.login_Background {
+  background-color: #191a1e;
+  /* height: 100vh; */
+  padding-top: 40px;
 }
-.Wrapper{
-    /* height: 100vh; */
+.register_Background {
+  background-color: #191a1e;
+  /* height: 100vh; */
+  padding-top: 40px;
 }
-.Wrapper h1{
-    color: white;
-    font-family: 'Poppins' !important;
-font-style: normal !important;
-font-weight: 500 !important;
-font-size: 38px !important;
-text-align: center;
-}
-.Wrapper img{
-    width: 120px;
-    padding-bottom: 25px;
-}
-.Wrapper input{
-    width: 100%;
-    background-color: #0E0F11;
-    padding: 20px;
-    color: white !important;
-    font-family: 'Poppins' !important;
-font-style: normal !important;
-font-weight: 500 !important;
-font-size: 20px !important;
-border: none;
-margin-top: 30px;
-border-radius: 10px;
-}
-.Wrapper .signinbutton{
-    width: 100%;
-    background-color: #007FFF;
-    padding: 20px;
-    color: white !important;
-    font-family: 'Poppins' !important;
-font-style: normal !important;
-font-weight: 500 !important;
-font-size: 20px !important;
-border: none;
-/* margin-top: 30px; */
-border-radius: 10px;
-}
-.Wrapper .guest{
-    width: 100%;
-    border: 2px solid #007FFF !important;
-    padding: 20px;
-    background-color: transparent !important;
-    color: white !important;
-    font-family: 'Poppins' !important;
-font-style: normal !important;
-font-weight: 500 !important;
-font-size: 20px;
-border: none;
-margin-top: 30px;
-border-radius: 10px;
-}
-.Wrapper .twitteruser{
-    width: 100%;
-    background-color: #202125 !important;
-    padding: 20px;
-    color: white !important;
-    font-family: 'Poppins' !important;
-font-style: normal !important;
-font-weight: 500 !important;
-font-size: 20px !important;
-border: none;
-margin-top: 30px;
-border-radius: 10px;
-}
-::placeholder{
-    color: white !important;
-}
-.Wrapper span{
-    color: #45474F;
-    font-family: 'Poppins' !important;
-font-style: normal !important;
-font-weight: 500 !important;
-font-size: 22px;
-}
-.twitteruser span{
-    color: white !important;
-}
-
-.twitteruser i{
- color: #007FFF;
- font-size: 32px;
-}
-@media (max-width: 768px){
-    .twitteruser i {
-        color: #007FFF;
-        font-size: 20px;
-        padding-top: 6px;
-    }
-    input[type="text"]{
-        font-size: 15px !important; 
-    }
-    .login_Background{
-        padding-top: 20px;
-    }
-    .Wrapper span {
-        font-size: 15px !important;
-    }
-    .Wrapper input{
-        font-size: 15px !important;
-        padding: 0px !important; 
-        padding-left: 20px !important;
-        height: 44px !important;
-        margin-top: 15px !important;
-    }
-    .Wrapper .signinbutton{
-        font-size: 15px !important;
-        padding: 0px !important; 
-        height: 44px !important;
-        
-    }
-    button.guest.continue{
-        font-size: 15px !important;
-        padding: 0px !important; 
-        height: 44px !important;
-        margin-top: 15px !important;
-    }
-    .Wrapper .twitteruser {
-        padding: 0px !important;
-        height: 44px !important;
-        padding-left: 10px !important;
-        margin-top: 15px !important;
-    }
-   .twitteruser span{
-    font-size: 15px !important;
-
-   }
-   .Wrapper img {
-    width: 60px !important;
-    padding-bottom: 5px;
+.Wrapper {
+  /* height: 100vh; */
 }
 .Wrapper h1 {
+  color: white;
+  font-family: "Poppins" !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-size: 38px !important;
+  text-align: center;
+}
+.Wrapper img {
+  width: 120px;
+  padding-bottom: 15px;
+}
+.Wrapper input {
+  width: 100%;
+  background-color: #0e0f11 !important;
+  padding: 20px;
+  color: white !important;
+  font-family: "Poppins" !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-size: 20px !important;
+  border: none;
+  margin-top: 20px;
+  border-radius: 10px;
+}
+.Wrapper .signinbutton {
+  width: 100%;
+  background-color: #007fff;
+  padding: 20px;
+  color: white !important;
+  font-family: "Poppins" !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-size: 20px !important;
+  border: none;
+  /* margin-top: 30px; */
+  border-radius: 10px;
+}
+.Wrapper .guest {
+  width: 100%;
+  border: 2px solid #007fff !important;
+  padding: 20px;
+  background-color: transparent !important;
+  color: white !important;
+  font-family: "Poppins" !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-size: 20px;
+  border: none;
+  margin-top: 30px;
+  border-radius: 10px;
+}
+.Wrapper .twitteruser {
+  width: 100%;
+  background-color: #202125 !important;
+  padding: 20px;
+  color: white !important;
+  font-family: "Poppins" !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-size: 20px !important;
+  border: none;
+  margin-top: 30px;
+  border-radius: 10px;
+}
+::placeholder {
+  color: white !important;
+}
+.Wrapper span {
+  color: #45474f;
+  font-family: "Poppins" !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-size: 22px;
+}
+.twitteruser span {
+  color: white !important;
+}
+
+.twitteruser i {
+  color: #007fff;
+  font-size: 32px;
+}
+@media (max-width: 768px) {
+  .twitteruser i {
+    color: #007fff;
+    font-size: 20px;
+    padding-top: 6px;
+  }
+
+  .ant-form-item{
+    margin-bottom: 0px !important;
+  }
+  input[type="text"] {
+    font-size: 15px !important;
+  }
+  .login_Background {
+    padding-top: 20px;
+    height: 105vh;
+
+  }
+  .Wrapper span {
+    font-size: 15px !important;
+  }
+  .Wrapper input {
+    font-size: 15px !important;
+    /* padding: 0px !important; */
+    /* padding-left: 20px !important; */
+    height: 44px !important;
+    /* margin-top: 15px !important; */
+  }
+  .contact_field{
+    padding: 11px 14px 11px 50px !important;
+  }
+  .Wrapper .signinbutton {
+    font-size: 15px !important;
+    padding: 0px !important;
+    height: 44px !important;
+  }
+  button.guest.continue {
+    font-size: 15px !important;
+    padding: 0px !important;
+    height: 44px !important;
+    margin-top: 15px !important;
+  }
+  .Wrapper .twitteruser {
+    padding: 0px !important;
+    height: 44px !important;
+    padding-left: 10px !important;
+    margin-top: 15px !important;
+  }
+  .twitteruser span {
+    font-size: 15px !important;
+  }
+  .Wrapper img {
+    width: 60px !important;
+    padding-bottom: 5px;
+  }
+  .Wrapper h1 {
     color: white;
-    font-family: 'Poppins' !important;
+    font-family: "Poppins" !important;
     font-style: normal !important;
     font-weight: 500 !important;
     font-size: 21px !important;
     text-align: center;
-}
+  }
 
-input[type="password"]{
+  input[type="password"] {
     margin-top: 0px !important;
+  }
+  .phonenumber_field {
+    margin-bottom: 0px !important;
+  }
+}
+
+.anticon svg {
+  color: #565252 !important;
+}
+.ant-input {
+  margin-top: 0px !important;
+  padding: 20px !important;
+  border-radius: 10px !important;
+}
+.ant-input-password {
+  padding: 0px !important;
+  margin-top: 20px !important;
+  border-radius: 10px !important;
+  background-color: #0e0f11 !important;
+  border: none !important;
+}
+.ant-input-suffix {
+  margin: 10px !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+.getotp{
+  color: #007fff;
+}
+.phonenumber_field input{
+  border: none !important;
+  width: 100% !important;
+}
+.countries{
+  margin-bottom: 20px;
+}
+.flag-dropdown {
+  background-color: #0e0f11 !important;
+  border: none !important;
+}
+.flag-dropdown:hover {
+  background-color: #0e0f11 !important;
+  border: none !important;
+}
+.country-list{
+  background-color: #0e0f11 !important;
 
 }
-}
-
-.anticon svg{
-    color: #565252 !important;
-}
-.ant-input{
-    margin-top: 0px !important;
-    padding: 20px !important;
-    border-radius: 10px !important;
+.country-list span{
+  color: white !important;
 
 }
-.ant-input-password{
-    padding: 0px !important;
-    margin-top: 20px !important;
-    border-radius: 10px !important;
-    background-color: #0E0F11 !important;
-    border: none !important;
+.country-list li:hover{
+  background-color: #1e2022 !important;
+
 }
-.ant-input-suffix{
-    margin: 10px !important;
+.country-list li{
+  background-color: #0e0f11 !important;
+
+}
+/* Set the width and height of the scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+.contact_field{
+  padding-left: 50px;
+  border-radius: 10px !important;
 }
