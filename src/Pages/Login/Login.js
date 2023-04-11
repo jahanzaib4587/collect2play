@@ -82,7 +82,7 @@ const Login = () => {
     const provider = new FacebookAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      const token = result.credential.accessToken;
+      const token = result.user.accessToken;
       const user = result.user;
       localStorage.setItem("access_token", token);
       window.location.href = "/";
@@ -95,7 +95,7 @@ const Login = () => {
     const provider = new TwitterAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      const token = result.credential.accessToken;
+      const token = result.user.accessToken;
       const user = result.user;
       localStorage.setItem("access_token", token);
       window.location.href = "/";
@@ -152,7 +152,7 @@ const Login = () => {
                   c2p_user_role: 1,
                   password: password,
                 };
-                handleSubmit(userApi);
+                // handleSubmit(userApi);
                 setIsSignup(true);
               })
               .catch((error) => {
@@ -265,7 +265,13 @@ const Login = () => {
         c2p_user_role: 1,
         password: password,
       };
-      handleSubmit(userApi);
+      handleNotification(
+        "You have successfully registered, Please use your credentials for login",
+        "success"
+      );
+      setIsSignup(true);
+
+      // handleSubmit(userApi);
     } catch (error) {
       if (!password || !phoneNumber || !verificationCode) {
         handleNotification("Please enter all the required values")
