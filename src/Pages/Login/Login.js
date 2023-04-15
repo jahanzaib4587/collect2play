@@ -38,6 +38,7 @@ const Login = () => {
   const [verificationId, setVerificationId] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [form] = Form.useForm();
+  const [countryCode, setCountryCode] = useState()
 
   function otpfield() {
     setOTP(!OTP);
@@ -65,14 +66,20 @@ const Login = () => {
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
-
     try {
       const result = await signInWithPopup(auth, provider);
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential.accessToken;
-      localStorage.setItem("access_token", token);
-      const user = result.user;
-      window.location.href = "/";
+      if (result._tokenResponse.isNewUser) {
+        const userApi = {
+          firebase_relay: `${result.user.providerData[0].uid}`,
+          email: result.user.email,
+          c2p_user_role: 1,
+        };
+        handleSubmit(userApi, true);
+      }
+      else {
+        handleFirebaseRelayIdSignIn(result.user.providerData[0].uid)
+      }
+
     } catch (error) {
       handleNotification(getFriendlyErrorMessage(error));
     }
@@ -107,30 +114,105 @@ const Login = () => {
     form
       .validateFields()
       .then(() => {
-        let newEmail = OTP ? `${phoneNumber}@c2p.com` : email;
-        setIsLoading(true);
-        signInWithEmailAndPassword(auth, newEmail, password)
-          .then((userCredential) => {
-            const user = userCredential.user;
-            if (OTP) {
-              localStorage.setItem("access_token", user.accessToken);
+        fetch(`https://console.collect2play.com/api/auth/login?email=${email}&password=${password}`, {
+          method: "POST",
+        })
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error("Network response was not ok");
+            }
+          })
+          .then(data => {
+            // Handle successful response
+            if (data.status == 200) {
+              localStorage.setItem("access_token", data.access_token);
               window.location.href = "/";
             }
             else {
-              if (user.emailVerified) {
-                localStorage.setItem("access_token", user.accessToken);
-                window.location.href = "/";
-              } else {
-                handleNotification("Please verify your email before signing in.");
-              }
+              handleNotification(data.message);
             }
           })
-          .catch((error) => {
-            handleNotification(getFriendlyErrorMessage(error));
+          .catch(error => {
+            // Handle error
+            handleNotification(error);
           });
+
+      });
+  }
+
+  const handlePhoneSignIn = () => {
+    form
+      .validateFields()
+      .then(() => {
+        fetch(`https://console.collect2play.com/api/auth/auth_by_phone_password`, {
+          method: "POST",
+          body: JSON.stringify({
+            phone: phoneNumber,
+            password: password,
+            country_code: countryCode
+          }),
+        })
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              handleNotification("Network response was not ok");
+            }
+          })
+          .then(data => {
+            // Handle successful response
+            if (data.status == 200) {
+              localStorage.setItem("access_token", data.access_token);
+              window.location.href = "/";
+            }
+            else {
+              handleNotification(data.message);
+            }
+          })
+          .catch(error => {
+            // Handle error
+            handleNotification(error);
+          });
+
+      });
+  }
+
+  const handleFirebaseRelayIdSignIn = (firebase_relay) => {
+    fetch(`  https://console.collect2play.com/api/auth/user_by_firebase_relay_id`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firebase_relay: firebase_relay
+      }),
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          handleNotification("Network response was not ok");
+        }
       })
-      .catch(() => { });
-  };
+      .then(data => {
+        // Handle successful response
+        if (data.status == 200) {
+          localStorage.setItem("access_token", data.access_token);
+          window.location.href = "/";
+        }
+        else {
+          handleNotification(data.message);
+        }
+      })
+      .catch(error => {
+        // Handle error
+        handleNotification(error);
+      });
+
+
+  }
 
   const handleSignUp = () => {
     form
@@ -152,7 +234,7 @@ const Login = () => {
                   c2p_user_role: 1,
                   password: password,
                 };
-                // handleSubmit(userApi);
+                handleSubmit(userApi);
                 setIsSignup(true);
               })
               .catch((error) => {
@@ -180,7 +262,7 @@ const Login = () => {
     setPhoneNumber(null);
   };
 
-  function handleSubmit(userApi) {
+  function handleSubmit(userApi, isGoogleSignIn = false) {
     fetch("https://console.collect2play.com/api/auth/create_user", {
       method: "POST",
       headers: {
@@ -195,17 +277,23 @@ const Login = () => {
         return response.json();
       })
       .then((data) => {
-        if (data.type == "error")
+        if (data.type == "error") {
           handleNotification(
-            "Phone number has already been taken",
-            "error"
+            data.message
           );
+        }
         else {
-          handleNotification(
-            "Successfully Signed Up, Please use credentials to login",
-            "success"
-          );
+          if (!isGoogleSignIn)
+            handleNotification(
+              "Successfully Signed Up, Please use credentials to login",
+              "success"
+            );
+          else {
+            localStorage.setItem("access_token", data.access_token);
+            window.location.href = "/";
+          }
           setIsSignup(true);
+
         }
       })
       .catch((error) => {
@@ -271,7 +359,7 @@ const Login = () => {
       );
       setIsSignup(true);
 
-      // handleSubmit(userApi);
+      handleSubmit(userApi);
     } catch (error) {
       if (!password || !phoneNumber || !verificationCode) {
         handleNotification("Please enter all the required values")
@@ -282,7 +370,11 @@ const Login = () => {
       }
     }
   }
+  function setPhone(value, country) {
+    setPhoneNumber(value);
+    setCountryCode(`+${country.dialCode}`);
 
+  }
 
   return (
     <>
@@ -348,8 +440,8 @@ const Login = () => {
                       autoFocus: true,
                     }}
                     value={phoneNumber}
-                    onChange={(e) => {
-                      setPhoneNumber(e);
+                    onChange={(e, v) => {
+                      setPhone(e, v)
                     }}
                     countryCodeEditable={false}
                     inputStyle={{
@@ -434,7 +526,7 @@ const Login = () => {
                           verificationCode,
                           password
                         )
-                        : handleSignIn()
+                        : handlePhoneSignIn()
                       : !isSignup
                         ? handleSignUp()
                         : handleSignIn();
