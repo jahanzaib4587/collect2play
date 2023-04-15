@@ -89,10 +89,18 @@ const Login = () => {
     const provider = new FacebookAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      const token = result.user.accessToken;
-      const user = result.user;
-      localStorage.setItem("access_token", token);
-      window.location.href = "/";
+
+      if (result._tokenResponse.isNewUser) {
+        const userApi = {
+          firebase_relay: `${result.user.providerData[0].uid}`,
+          email: result.user.email,
+          c2p_user_role: 1,
+        };
+        handleSubmit(userApi, true);
+      }
+      else {
+        handleFirebaseRelayIdSignIn(result.user.providerData[0].uid)
+      }
     } catch (error) {
       handleNotification(getFriendlyErrorMessage(error));
     }
@@ -102,10 +110,18 @@ const Login = () => {
     const provider = new TwitterAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      const token = result.user.accessToken;
-      const user = result.user;
-      localStorage.setItem("access_token", token);
-      window.location.href = "/";
+
+      if (result._tokenResponse.isNewUser) {
+        const userApi = {
+          firebase_relay: `${result.user.providerData[0].uid}`,
+          email: result.user.email,
+          c2p_user_role: 1,
+        };
+        handleSubmit(userApi, true);
+      }
+      else {
+        handleFirebaseRelayIdSignIn(result.user.providerData[0].uid)
+      }
     } catch (error) {
       handleNotification(getFriendlyErrorMessage(error));
     }
@@ -149,9 +165,9 @@ const Login = () => {
         fetch(`https://console.collect2play.com/api/auth/auth_by_phone_password`, {
           method: "POST",
           body: JSON.stringify({
-            phone: phoneNumber,
-            password: password,
-            country_code: countryCode
+            phone: '923007652154',
+            password: 'A@123456',
+            country_code: '+92'
           }),
         })
           .then(response => {
